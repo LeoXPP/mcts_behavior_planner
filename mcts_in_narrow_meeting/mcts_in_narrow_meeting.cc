@@ -1,4 +1,5 @@
 #include "mcts_in_narrow_meeting.h"
+#include <limits>
 
 
 namespace apollo {
@@ -227,8 +228,8 @@ bool XICAMCTSFunction::GetLeaderState(const std::unordered_map<std::string, Vehi
 bool XICAMCTSFunction::XICAIDMModel(const VehicleState &cur_state, VehicleState &next_state, double dt,
                                     const VehicleState *leader_state) {
   XICAIDMParam idm_param = mcts_param_.xica_idm_param;
-  double safe_dist = idm_param.idm_min_dist_ + idm_param.idm_desired_time_ * cur_state.vel();
-  double dist = INT_MAX;
+  double dist = std::numeric_limits<int>::max();
+  double dist = std::numeric_limits<double>::max();
   
   if (leader_state) {
     double delta_vel = std::fabs(cur_state.vel() - leader_state->vel());
@@ -254,8 +255,8 @@ bool XICAMCTSFunction::XICAIDMModel(const VehicleState &cur_state, VehicleState 
   }
   double acc = idm_param.max_acc_ * (1.0 - std::pow(cur_state.vel() / ego_target_speed_, idm_param.acc_exp_) -
                                      std::pow(safe_dist / dist, 2));
-  acc = common::math::Clamp(acc, cur_state.acc() - dt * mcts_param_.veh_param.comfort_jerk,
-                            cur_state.acc() + dt * mcts_param_.veh_param.comfort_jerk);
+  acc = std::max(cur_state.acc() - dt * mcts_param_.veh_param.comfort_jerk,
+                 std::min(acc, cur_state.acc() + dt * mcts_param_.veh_param.comfort_jerk));
   // in case velocity is negative
   double new_vel = cur_state.vel() + acc * dt;
   if (new_vel < 0) {
@@ -266,7 +267,7 @@ bool XICAMCTSFunction::XICAIDMModel(const VehicleState &cur_state, VehicleState 
   next_state.set_vel(cur_state.vel() + acc * dt);
   double new_s = cur_state.s() + cur_state.vel() * dt + 0.5f * acc * dt * dt;
   next_state.set_s(new_s);
-  apollo::common::PathPoint path_point = mcts_param_.obs_path.at("ego").Evaluate(next_state.s());
+  PathPoint path_point = mcts_param_.obs_path.at("ego").Evaluate(next_state.s());
   next_state.set_x(path_point.x());
   next_state.set_y(path_point.y());
   next_state.set_theta(path_point.theta());
@@ -304,7 +305,7 @@ void XICAMCTSFunction::PreConstructTree(MCTSNode *root, bool is_pre_construct) {
     if (!mcts_param_.use_ref_pre_construct) {
       for (auto &[id, obstacle] : mcts_param_.pred_obs) {
         int point_idx = static_cast<int>((node->relative_time() + mcts_param_.time_step[node->iter()]) * 10);
-        point_idx = std::min(point_idx, obstacle.trajectory()[0].trajectory_point().size() - 1);
+        point_idx = std::min(point_idx, static_cast<int>(obstacle.trajectory()[0].trajectory_point().size() - 1));
         auto &obs_traj = obstacle.trajectory()[0].trajectory_point()[point_idx];
         next_state.at(id).set_x(obs_traj.path_point().x());
         next_state.at(id).set_y(obs_traj.path_point().y());
@@ -482,7 +483,7 @@ bool XICAMCTSFunction::EgoSearchIDMModel(const VehicleAction &action,
     next_state.set_s(cur_state.s() + ds);
 
     // Safely evaluate the path point for the new s-coordinate
-    std::optional<apollo::common::PathPoint> path_point_opt;
+    std::optional<PathPoint> path_point_opt;
     auto path_it = mcts_param_.obs_path.find("ego");
     if (path_it != mcts_param_.obs_path.end()) {
         path_point_opt = path_it->second.Evaluate(next_state.s());
@@ -505,7 +506,7 @@ bool XICAMCTSFunction::EgoSearchIDMModel(const VehicleAction &action,
     return true;
 }
 
-bool XICM+CTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id, const VehicleAction &action, const VehicleState &cur_state,
+bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id, const VehicleAction &action, const VehicleState &cur_state,
                                          VehicleState &next_state, const double dt, bool check_valid) {
   // Bicycle jerk model
   double dt_sq = dt * dt;
@@ -526,6 +527,7 @@ bool XICM+CTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id, cons
     return false;
   }
   next_state.set_kappa(new_kappa);
+  
 
   // a_1 = a_0 + jerk * dt
   double new_jerk = action.jerk();
@@ -874,7 +876,7 @@ double XICAMCTSFunction::XICAPredictionReward(const VehicleState &veh_state, con
   constexpr double DIST_THRESHOLD_MAX = 4.0;  // Distance >= 4.0m => Reward = 0.0
 
   // Check if the prediction obstacle has a valid trajectory
- +if (pred_obs.trajectory().empty() || pred_obs.trajectory(0).trajectory_point().empty()) {
+  if (pred_obs.trajectory().empty() || pred_obs.trajectory(0).trajectory_point().empty()) {
     return 0.0;
   }
 
@@ -966,7 +968,7 @@ double XICAMCTSFunction::XICAHistoryConsistencyReward(const VehicleState &veh_st
   double weight_acceleration = 0.1;
 
   // Ensure weights sum to 1
-d+ouble total_weight = weight_distance + weight_velocity + weight_acceleration;
+  double total_weight = weight_distance + weight_velocity + weight_acceleration;
   weight_distance /= total_weight;
   weight_velocity /= total_weight;
   weight_acceleration /= total_weight;

@@ -80,7 +80,12 @@
     "numeric": "cpp",
     "string_view": "cpp",
     "numbers": "cpp",
-    "variant": "cpp"
+    "variant": "cpp",
+    "*.inc": "cpp",
+    "condition_variable": "cpp",
+    "cstdarg": "cpp",
+    "set": "cpp",
+    "semaphore": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",

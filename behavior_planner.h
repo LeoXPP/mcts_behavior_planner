@@ -6,25 +6,34 @@
 #include <unordered_set>
 #include <vector>
 
-
+#include "common/bp_data_struct.h"
+#include "common/trajectory_point.h"
 #include "mcts_base/mcts_base.h"
 #include "mcts_in_narrow_meeting/mcts_in_narrow_meeting.h"
 #include "tree_node/tree_node.h"
+#include "vehicle_state/vehicle_state.h"
+#include "mcts_tree/mcts_tree.h"
+
 
 namespace apollo {
 namespace BehaviorPlanner {
-
 
 class Planner {
 
 public:
   ~Planner() {}
 
-  void LoadParams();
+  void Init();
 
+  bool LoadParams();
+
+  bool ConstructTestInput();
+  
   bool MakeDecision();
 
   bool BuildGamingInfo();
+
+  bool SetGamingAgentInfo();
 
   bool UpdateDecisionParams();
 
@@ -35,27 +44,24 @@ public:
 private:
   XICABehaviorDeciderConfig config_;
 
-  std::shared_ptr<apollo::executor::XICAContext> context_ = nullptr;
+  // std::shared_ptr<apollo::executor::XICAContext> context_ = nullptr;
 
-  ReferenceLineInfoPtr reference_line_info_ = nullptr;
+  // ReferenceLineInfoPtr reference_line_info_ = nullptr;
 
-  WorldViewPtr world_view_ = nullptr;
+  // WorldViewPtr world_view_ = nullptr;
 
   bool is_first_entry_ = true;
 
-  joint_search::TimeVariantBicycleAccDynamicsConfig mcts_dynamics_;
-
-  std::unordered_set<std::string> opposite_left_turn_obs_set_;
+  // MCTS dynamics
+  MCTSDynamics mcts_dynamics_;
 
   std::unordered_set<std::string> opposite_collision_obs_set_;
 
-  std::unordered_set<std::string> opposite_collision_obs_set_choose_by_me_;
-
-  std::unordered_map<std::string, prediction::PredictionObstacle> pred_cipv_;
+  std::unordered_map<std::string, PredictionObstacle> pred_cipv_;
 
   std::unordered_map<std::string, DecisionType> decision_type_;
 
-  std::unordered_map<std::string, prediction::PredictionObstacle> pred_obs_;
+  std::unordered_map<std::string, PredictionObstacle> pred_obs_;
 
   DiscretizedTrajectory ego_traj_;
 
@@ -67,8 +73,7 @@ private:
 
   std::vector<MCTSNode *> decision_res_;
 
-  std::unordered_map<std::string, prediction::Trajectory *>
-      modified_trajectories_;
+  std::unordered_map<std::string, Trajectory *> modified_trajectories_;
 
   planning::MCTSGamingInfoSet *debug_info_set_ = nullptr;
 

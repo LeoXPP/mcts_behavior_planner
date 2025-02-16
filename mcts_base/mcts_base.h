@@ -23,14 +23,6 @@ constexpr float kMinStopTime = -100.f;
 
 enum DecisionType { EgoSearch = 0, EgoPlanning = 1, ObsSearch = 2, ObsPrediction = 3, EgoIDM = 4};
 
-struct TrajectoryPoint {
-  double x = 0.0;
-  double y = 0.0;
-  double theta = 0.0;
-  double v = 0.0;
-  double a = 0.0;
-  double t = 0.0;
-};
 
 struct RewardInfo {
   double w_ref = 0.0;
@@ -54,7 +46,7 @@ struct MCTSParam {
   std::vector<double> time_step;
   int max_iter = 0;
   std::unordered_map<std::string, DecisionType> decision_type;
-  std::unordered_map<std::string, apollo::prediction::PredictionObstacle> pred_obs;
+  std::unordered_map<std::string, PredictionObstacle> pred_obs;
   std::unordered_map<std::string, DiscretizedPath> obs_path;
   std::unordered_map<std::string, apollo::common::CurveBase> obs_path_frenet;
   std::unordered_map<std::string, std::shared_ptr<ReferenceLineInfo>> obs_refline_info;
@@ -62,7 +54,7 @@ struct MCTSParam {
   std::unordered_map<std::string, double> obs_target_speed;
 
   std::vector<TrajectoryPoint> ego_traj_points;
-  std::unordered_map<std::string, prediction::Trajectory> last_modified_trajectories;
+  std::unordered_map<std::string, Trajectory> last_modified_trajectories;
   std::unordered_map<std::string, double> vel_limit;
   VehConfig veh_param;
   RewardInfo reward_info;
