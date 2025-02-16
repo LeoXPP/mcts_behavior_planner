@@ -1,4 +1,7 @@
 #include "mcts_in_narrow_meeting.h"
+#include "common/SLPoint.h"
+#include "common/box2d.h"
+#include "common/math_utils.h"
 #include <limits>
 
 
@@ -169,7 +172,7 @@ bool XICAMCTSFunction::StateChange(MCTSNode *node, const std::unordered_map<std:
     // Obs Prediction
     else if (decision_type == DecisionType::ObsPrediction) {
       int point_idx = static_cast<int>((node->relative_time() + mcts_param_.time_step[node->iter()]) * 10);
-      point_idx = std::min(point_idx, mcts_param_.pred_obs.at(id).trajectory()[0].trajectory_point().size() - 1);
+      point_idx = std::min(point_idx, static_cast<int>(mcts_param_.pred_obs.at(id).trajectory()[0].trajectory_point().size() - 1));
       auto &obs_traj = mcts_param_.pred_obs.at(id).trajectory()[0].trajectory_point()[point_idx];
       next_state.at(id).set_x(obs_traj.path_point().x());
       next_state.at(id).set_y(obs_traj.path_point().y());
@@ -228,7 +231,7 @@ bool XICAMCTSFunction::GetLeaderState(const std::unordered_map<std::string, Vehi
 bool XICAMCTSFunction::XICAIDMModel(const VehicleState &cur_state, VehicleState &next_state, double dt,
                                     const VehicleState *leader_state) {
   XICAIDMParam idm_param = mcts_param_.xica_idm_param;
-  double dist = std::numeric_limits<int>::max();
+  double safe_dist = idm_param.idm_min_dist_ + idm_param.idm_desired_time_ * cur_state.vel();
   double dist = std::numeric_limits<double>::max();
   
   if (leader_state) {
@@ -328,7 +331,7 @@ void XICAMCTSFunction::PreConstructTree(MCTSNode *root, bool is_pre_construct) {
         const auto &ref_line = ref_line_info->reference_line_ptr();
 
         int point_idx = static_cast<int>((node->relative_time() + mcts_param_.time_step[node->iter()]) * 10);
-        point_idx = std::min(point_idx, obstacle.trajectory()[0].trajectory_point().size() - 1);
+        point_idx = std::min(point_idx, static_cast<int>(obstacle.trajectory()[0].trajectory_point().size() - 1));
         auto &obs_traj = obstacle.trajectory()[0].trajectory_point()[point_idx];
 
         double accumulate_s = 0.0;
@@ -407,8 +410,8 @@ void XICAMCTSFunction::Prepuring(MCTSNode *new_node) {
     // // ATRACE << "xiepanpan: obstacle id is:" << id << "the decision type is:" <<decision_type;
     if (decision_type == DecisionType::ObsSearch) {
       apollo::common::math::Box2d obs_box({next_state.at(id).x(), next_state.at(id).y()}, next_state.at(id).theta(),
-                                          mcts_param_.pred_obs.at(id).perception_obstacle().length(),
-                                          mcts_param_.pred_obs.at(id).perception_obstacle().width());
+                                          mcts_param_.pred_obs.at(id).length,
+                                          mcts_param_.pred_obs.at(id).width);
       // Collision check: ego
       double dis = std::hypot(next_state.at(id).x() - next_state.at("ego").x(),
                               next_state.at(id).y() - next_state.at("ego").y());
@@ -449,6 +452,14 @@ void XICAMCTSFunction::Prepuring(MCTSNode *new_node) {
   return;
 }
 
+inline double get_max_dkappa(double current_velocity) {
+  // 假设最大角速度变化与速度成线性关系
+  double max_dkappa_rate = 0.5; // 最大角速度变化率（可以根据具体情况调整）
+  double max_dkappa = max_dkappa_rate * current_velocity;
+  return max_dkappa;
+}
+
+
 bool XICAMCTSFunction::EgoSearchIDMModel(const VehicleAction &action,
                                          const VehicleState &cur_state,
                                          VehicleState &next_state,
@@ -483,9 +494,10 @@ bool XICAMCTSFunction::EgoSearchIDMModel(const VehicleAction &action,
     next_state.set_s(cur_state.s() + ds);
 
     // Safely evaluate the path point for the new s-coordinate
-    std::optional<PathPoint> path_point_opt;
+    PathPoint* path_point_opt = nullptr;
     auto path_it = mcts_param_.obs_path.find("ego");
     if (path_it != mcts_param_.obs_path.end()) {
+      // xiepanpan: Evaluate 
         path_point_opt = path_it->second.Evaluate(next_state.s());
     } else {
         // ATRACE << "Path information for 'ego' not found.";
@@ -553,7 +565,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id, cons
   // v_1 = v_0 + a_1 * dt + 1/2 * jerk * dt^2 -> Get stop time for deceleration
   float stop_time = kMaxStopTime;
   float root1_ = kMaxStopTime;
-  float ro+t2_ = kMaxStopTime;
+  float root2_ = kMaxStopTime;
   if (cur_state.vel() <= std::fabs(dt * mcts_param_.veh_param.min_acc)) {
     if (std::fabs(cur_state.vel()) < kEpsilon &&
         (new_acc < -kEpsilon || (std::fabs(new_acc) < kEpsilon && new_jerk < -kEpsilon))) {
@@ -599,7 +611,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id, cons
     new_theta = cur_state.theta() + cur_state.kappa() * ds + 0.5f * new_dkappa * cur_state.vel() * dt_sq;
   }
 
-  vehicle_t+ate_detail.new_vel = new_vel;
+  vehicle_state_detail.new_vel = new_vel;
   // check vel
   if (check_valid && new_vel > mcts_param_.veh_param.max_vel) {
     // // ATRACE << "xiepanpan: vel is out of range" << new_vel << "  ,  and the max vel is: " << mcts_param_.veh_param.max_vel;
@@ -691,7 +703,7 @@ bool XICAMCTSFunction::BoundaryCheck(MCTSNode *node, const VehicleState &next_st
       VehicleStateDetails &cur_state = node->vehicle_states[id];
       
       std::pair<double, double> sl_point = apollo::common::math::PathMatcher::GetPathFrenetCoordinate(
-          mcs+_param_.obs_path.at(id), next_state.x(), next_state.y());
+          mcts_param_.obs_path.at(id), next_state.x(), next_state.y());
       cur_state.lateral_dis_to_prediction = sl_point.second;
 
       if (std::fabs(sl_point.second) > mcts_param_.veh_param.max_delta_l) {

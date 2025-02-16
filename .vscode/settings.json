@@ -85,7 +85,9 @@
     "condition_variable": "cpp",
     "cstdarg": "cpp",
     "set": "cpp",
-    "semaphore": "cpp"
+    "semaphore": "cpp",
+    "codecvt": "cpp",
+    "valarray": "cpp"
   },
   "C_Cpp_Runner.cCompilerPath": "gcc",
   "C_Cpp_Runner.cppCompilerPath": "g++",
