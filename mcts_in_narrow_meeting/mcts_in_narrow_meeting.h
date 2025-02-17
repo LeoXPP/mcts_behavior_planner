@@ -96,20 +96,19 @@ class XICAMCTSFunction : public BehaviorMCTSFunctionBase {
   double XICAIDMVelocityReward(const VehicleState &next_state);
   double SmoothnessReward(const VehicleState &cur_state, const VehicleState &his_state);
   double XICAHistoryConsistencyReward(const VehicleState &veh_state, const double cur_t,
-                                      const prediction::Trajectory &last_modified_traj);
+                                      const Trajectory &last_modified_traj);
   double XICAPredictionReward(const VehicleState &veh_state, const double cur_t,
-                              const apollo::prediction::PredictionObstacle &pred_obs);
+                              const PredictionObstacle &pred_obs);
   double XICAReflineReward(const std::unordered_map<std::string, VehicleState> &cur_state, const std::string &id);
 
   double XICASafetyReward(const std::unordered_map<std::string, VehicleState> &cur_state);
 
   double StateConsistencyReward(const VehicleState &cur_state, const double cur_t,
-                                const apollo::prediction::PredictionObstacle &pred_obs);
+                                const PredictionObstacle &pred_obs);
 
-  inline void InitWorldView(WorldViewPtr world_view) { world_view_ = world_view; };
-  inline void InitReferenceLineInfo(const ReferenceLineInfoPtr reference_line_info) {
-    reference_line_info_ = reference_line_info;
-  };
+  // inline void InitWorldView(WorldViewPtr world_view) { world_view_ = world_view; };
+  // inline void InitReferenceLineInfo(const ReferenceLineInfoPtr reference_line_info) {
+  // reference_line_info_ = reference_line_info;
 
  public:
   bool AccModel(const VehicleAction &action, const VehicleState &cur_state, VehicleState &next_state, const double dt,
@@ -123,8 +122,8 @@ class XICAMCTSFunction : public BehaviorMCTSFunctionBase {
 
  private:
   ObstacleType obs_type_;
-  WorldViewPtr world_view_ = nullptr;
-  ReferenceLineInfoPtr reference_line_info_ = nullptr;
+  // WorldViewPtr world_view_ = nullptr;
+  // ReferenceLineInfoPtr reference_line_info_ = nullptr;
 };
 
 

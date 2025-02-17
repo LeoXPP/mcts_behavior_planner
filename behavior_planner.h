@@ -75,18 +75,18 @@ private:
 
   std::unordered_map<std::string, Trajectory *> modified_trajectories_;
 
-  planning::MCTSGamingInfoSet *debug_info_set_ = nullptr;
+  // planning::MCTSGamingInfoSet *debug_info_set_ = nullptr;
 
   // for choose gaming obs
-  std::vector<const ObstacleInfo *> left_neighbor_obstacles_;
+  // std::vector<const ObstacleInfo *> left_neighbor_obstacles_;
 
-  std::vector<const ObstacleInfo *> right_neighbor_obstacles_;
+  // std::vector<const ObstacleInfo *> right_neighbor_obstacles_;
 
-  std::vector<const ObstacleInfo *> current_lane_obstacles_;
+  // std::vector<const ObstacleInfo *> current_lane_obstacles_;
 
-  std::vector<const ObstacleInfo *> nudge_obstacles_;
+  // std::vector<const ObstacleInfo *> nudge_obstacles_;
 
-  ObstacleInfo *nearest_cipv_obstacle_ = nullptr;
+  // ObstacleInfo *nearest_cipv_obstacle_ = nullptr;
 
   std::unordered_set<std::string> roi_dynamic_obs_list_;
 
