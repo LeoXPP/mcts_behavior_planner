@@ -8,8 +8,8 @@ namespace common {
 #include <cmath>
 #include <string>
 
-#include <string>
 #include <cmath>
+#include <string>
 
 class SLPoint {
 public:
@@ -27,6 +27,10 @@ public:
   double s() const { return s_; }
   double l() const { return l_; }
 
+  // 设置 s_ 和 l_ 的值
+  void set_s(double s) { s_ = s; }
+  void set_l(double l) { l_ = l; }
+
   // 创建一个 SLPoint 实例
   static SLPoint create(double s, double l) { return SLPoint(s, l); }
 
@@ -38,7 +42,8 @@ public:
 
   // 将 SLPoint 转换为字符串
   std::string toString() const {
-    return "SLPoint(s: " + std::to_string(s_) + ", l: " + std::to_string(l_) + ")";
+    return "SLPoint(s: " + std::to_string(s_) + ", l: " + std::to_string(l_) +
+           ")";
   }
 
   // 从字符串解析 SLPoint（假设字符串格式是 "s,l"）
@@ -51,15 +56,16 @@ public:
 
   // 转换为 JSON 格式（简单的示例）
   std::string toJSON() const {
-    return "{\"s\": " + std::to_string(s_) + ", \"l\": " + std::to_string(l_) + "}";
+    return "{\"s\": " + std::to_string(s_) + ", \"l\": " + std::to_string(l_) +
+           "}";
   }
 
   // 获取默认类型 URL
-  static std::string getTypeUrl(const std::string &typeUrlPrefix = "type.googleapis.com") {
+  static std::string
+  getTypeUrl(const std::string &typeUrlPrefix = "type.googleapis.com") {
     return typeUrlPrefix + "/apollo.common.SLPoint";
   }
 };
-
 
 } // namespace common
 } // namespace apollo

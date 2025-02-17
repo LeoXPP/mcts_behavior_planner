@@ -154,6 +154,8 @@ struct PredictionObstacle {
   // 返回所有预测轨迹
   const std::vector<Trajectory> &trajectory() const { return trajectories; }
 
+  const Trajectory &trajectory(int index) const { return trajectories[index]; }
+
   // 添加一条预测轨迹
   void AddTrajectory(const Trajectory &traj) { trajectories.push_back(traj); }
 };

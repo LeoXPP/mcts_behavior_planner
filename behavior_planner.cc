@@ -222,9 +222,9 @@ bool Planner::ConstructTestInput() {
     // 此时 pp 已经根据 i 的值进行了初始化，可以继续使用 pp 进行后续操作
 
     // 使用初始化好的 PathPoint 对象来构造 TrajectoryPoint 对象
-    TrajectoryPoint tp(pp, 10.0, 0.0); // 速度 10 m/s，加速度 0 m/s²
+    TrajectoryPoint tp(pp, 10.0, 0.0, 0.0, i); // 速度 10 m/s，加速度 0 m/s²
     mcts_param_.ego_traj_points.push_back(tp);
-    ego_traj_.points.push_back(tp);
+    ego_traj_.AddTrajectoryPoint(tp);
   }
 
   // ----- 构造障碍车（他车）的预测轨迹 ----- 
@@ -241,7 +241,7 @@ bool Planner::ConstructTestInput() {
     pp.set_kappa(0.0);               // 曲率为 0
 
     // 使用 pp 对象和速度、加速度来构造 TrajectoryPoint 对象
-    TrajectoryPoint tp(pp, -15.0, 0.0); // 负速 -15.0, 加速度 0.0
+    TrajectoryPoint tp(pp, -15.0, 0.0, 0.0, i); // 负速 -15.0, 加速度 0.0
     if (obs.trajectories.empty()) {
       obs.AddTrajectory(Trajectory());
     }
