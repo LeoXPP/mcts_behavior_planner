@@ -295,3 +295,86 @@ public:
 private:
   std::vector<TrajectoryPoint> trajectory_points_;
 };
+
+class DiscretizedPath {
+public:
+  using iterator = std::vector<PathPoint>::iterator;
+  using const_iterator = std::vector<PathPoint>::const_iterator;
+
+  DiscretizedPath() = default;
+
+  explicit DiscretizedPath(const std::vector<PathPoint> &path_points)
+      : path_points_(path_points) {}
+
+  void AddPathPoint(const PathPoint &point) { path_points_.push_back(point); }
+
+  std::size_t NumOfPoints() const { return path_points_.size(); }
+
+  const PathPoint &PathPointAt(std::size_t index) const {
+    if (index >= path_points_.size()) {
+      throw std::out_of_range("PathPointAt: index out of range");
+    }
+    return path_points_[index];
+  }
+
+  PathPoint &PathPointAt(std::size_t index) {
+    if (index >= path_points_.size()) {
+      throw std::out_of_range("PathPointAt: index out of range");
+    }
+    return path_points_[index];
+  }
+
+  iterator begin() { return path_points_.begin(); }
+  iterator end() { return path_points_.end(); }
+  const_iterator begin() const { return path_points_.begin(); }
+  const_iterator end() const { return path_points_.end(); }
+  const_iterator cbegin() const { return path_points_.cbegin(); }
+  const_iterator cend() const { return path_points_.cend(); }
+
+  void Clear() { path_points_.clear(); }
+
+  // Evaluate 方法：根据输入距离 s 计算（或插值）对应的路径点
+  PathPoint Evaluate(double s) const {
+    if (path_points_.empty()) {
+      throw std::runtime_error("Evaluate: path is empty");
+    }
+
+    // 如果 s 小于等于第一个点的 s，则返回第一个点
+    if (s <= path_points_.front().s()) {
+      return path_points_.front();
+    }
+
+    // 如果 s 大于等于最后一个点的 s，则返回最后一个点
+    if (s >= path_points_.back().s()) {
+      return path_points_.back();
+    }
+
+    // 遍历路径点，找到 s 所在的区间
+    for (std::size_t i = 1; i < path_points_.size(); ++i) {
+      const auto &prev_point = path_points_[i - 1];
+      const auto &next_point = path_points_[i];
+      if (prev_point.s() <= s && s <= next_point.s()) {
+        double ds = next_point.s() - prev_point.s();
+        double ratio = (s - prev_point.s()) / ds;
+
+        // 线性插值计算路径点的各个属性
+        double x = (1 - ratio) * prev_point.x() + ratio * next_point.x();
+        double y = (1 - ratio) * prev_point.y() + ratio * next_point.y();
+        double theta =
+            (1 - ratio) * prev_point.theta() + ratio * next_point.theta();
+        double kappa =
+            (1 - ratio) * prev_point.kappa() + ratio * next_point.kappa();
+        double dkappa =
+            (1 - ratio) * prev_point.dkappa() + ratio * next_point.dkappa();
+
+        return PathPoint(x, y, s, theta, kappa, dkappa);
+      }
+    }
+
+    // 理论上不可能执行到这里，但为了安全起见返回最后一个点
+    return path_points_.back();
+  }
+
+private:
+  std::vector<PathPoint> path_points_;
+};

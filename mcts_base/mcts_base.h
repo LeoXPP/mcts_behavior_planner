@@ -12,6 +12,9 @@
 #include "../tree_node/tree_node.h"
 #include "../vehicle_state/vehicle_state.h"
 #include "../common/vec2d.h"
+#include "../common/math_utils.h"
+#include "../common/trajectory_point.h"
+#include "../common/SLPoint.h"
 
 
 namespace apollo{
@@ -48,9 +51,9 @@ struct MCTSParam {
   std::unordered_map<std::string, DecisionType> decision_type;
   std::unordered_map<std::string, PredictionObstacle> pred_obs;
   std::unordered_map<std::string, DiscretizedPath> obs_path;
-  std::unordered_map<std::string, apollo::common::CurveBase> obs_path_frenet;
-  std::unordered_map<std::string, std::shared_ptr<ReferenceLineInfo>> obs_refline_info;
-  std::unordered_map<std::string, std::vector<common::SLPoint>> obs_ref_frenet_project;
+  // std::unordered_map<std::string, apollo::common::CurveBase> obs_path_frenet;
+  // std::unordered_map<std::string, std::shared_ptr<ReferenceLineInfo>> obs_refline_info;
+  std::unordered_map<std::string, std::vector<apollo::common::SLPoint>> obs_ref_frenet_project;
   std::unordered_map<std::string, double> obs_target_speed;
 
   std::vector<TrajectoryPoint> ego_traj_points;
@@ -93,13 +96,13 @@ class BehaviorMCTSFunctionBase {
   // virtual void InitWorldView(WorldViewPtr world_view) { UNUSED(world_view); }; 
   // virtual void InitReferenceLineInfo(const ReferenceLineInfoPtr reference_line_info) { UNUSED(reference_line_info);};
  public:
-  bool SetSearchEnv(SearchEnvironmentPtr search_env);
+  // bool SetSearchEnv(SearchEnvironmentPtr search_env);
   bool JerkModel(const VehicleAction &action, const VehicleState &cur_state, VehicleState &next_state, const double dt,
                  bool check_valid = false);
   bool PredictionModel(const VehicleAction &action, const VehicleState &cur_state, VehicleState &next_state,
                        const double dt, const DiscretizedPath &obs_path, bool check_valid = false);
   inline const MCTSParam &mcts_param() { return mcts_param_; }
-  inline SearchEnvironmentPtr search_env() { return search_env_; }
+  // inline SearchEnvironmentPtr search_env() { return search_env_; }
   inline MCTSParam &get_mcts_param() { return mcts_param_; }
 
  protected:
@@ -107,17 +110,17 @@ class BehaviorMCTSFunctionBase {
   double SafetyReward(const std::unordered_map<std::string, VehicleState> &cur_state);
   double EfficiencyReward(const VehicleState &cur_state);
   double AccelerationReward(const VehicleState &veh_state);
-  double ReferenceLineReward(const VehicleState &cur_state, const apollo::common::TrajectoryPoint &ego_traj);
+  double ReferenceLineReward(const VehicleState &cur_state, const TrajectoryPoint &ego_traj);
   double PredictionReward(const VehicleState &cur_state, const double cur_t,
-                          const apollo::prediction::PredictionObstacle &pred_obs);
+                          const PredictionObstacle &pred_obs);
   double ActionConsistencyReward(const VehicleAction &veh_action, const VehicleAction &last_veh_action);
   double HistoryConsistencyReward(const VehicleState &veh_state, const double cur_t,
-                                  const prediction::Trajectory &last_modified_traj);
+                                  const Trajectory &last_modified_traj);
 
  protected:
   MCTSParam mcts_param_;
   std::mt19937 gen_;
-  SearchEnvironmentPtr search_env_;
+  // SearchEnvironmentPtr search_env_;
 };
 
 

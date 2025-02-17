@@ -218,37 +218,37 @@ bool XICAMCTSFunction::GetLeaderState(
       100.0; // Initialize with a max threshold distance
   // std::string leader_id = "";
 
-  // Find the leader vehicle
-  for (auto &[id_, decision_type] : mcts_param_.decision_type) {
-    if (decision_type == DecisionType::ObsSearch) {
-      auto it = cur_state.find(id_);
-      if (it == cur_state.end()) {
-        // // AERROR << "xiepanpan not found id_ when find nearest agent: " <<
-        // id_;
-        return false;
-      }
-      const VehicleState &candidate_state = it->second;
-      const VehicleState &ego_state = cur_state.at(id);
-      apollo::common::math::Vec2d ego_xy(ego_state.x(), ego_state.y());
-      apollo::common::SLPoint candidate_sl_point;
-      if (mcts_param_.obs_path_frenet.find(id_) ==
-          mcts_param_.obs_path_frenet.end()) {
-        // // AERROR << "xiepanpan: not found ego id when  ind the leader
-        // vehicle" << id;
-        return false;
-      }
-      mcts_param_.obs_path_frenet.at(id_).XYToSL(ego_xy, &candidate_sl_point);
+  // // Find the leader vehicle
+  // for (auto &[id_, decision_type] : mcts_param_.decision_type) {
+  //   if (decision_type == DecisionType::ObsSearch) {
+  //     auto it = cur_state.find(id_);
+  //     if (it == cur_state.end()) {
+  //       // // AERROR << "xiepanpan not found id_ when find nearest agent: " <<
+  //       // id_;
+  //       return false;
+  //     }
+  //     const VehicleState &candidate_state = it->second;
+  //     const VehicleState &ego_state = cur_state.at(id);
+  //     apollo::common::math::Vec2d ego_xy(ego_state.x(), ego_state.y());
+  //     apollo::common::SLPoint candidate_sl_point;
+  //     if (mcts_param_.obs_path_frenet.find(id_) ==
+  //         mcts_param_.obs_path_frenet.end()) {
+  //       // // AERROR << "xiepanpan: not found ego id when  ind the leader
+  //       // vehicle" << id;
+  //       return false;
+  //     }
+  //     mcts_param_.obs_path_frenet.at(id_).XYToSL(ego_xy, &candidate_sl_point);
 
-      double longitudinal_dist = std::fabs(candidate_sl_point.s());
-      double lateral_dist = std::fabs(candidate_sl_point.l());
+  //     double longitudinal_dist = std::fabs(candidate_sl_point.s());
+  //     double lateral_dist = std::fabs(candidate_sl_point.l());
 
-      if (lateral_dist < 2.0 && longitudinal_dist < min_longitudinal_dist) {
-        min_longitudinal_dist = longitudinal_dist;
-        leader_state = &candidate_state;
-        // leader_id = id_;
-      }
-    }
-  }
+  //     if (lateral_dist < 2.0 && longitudinal_dist < min_longitudinal_dist) {
+  //       min_longitudinal_dist = longitudinal_dist;
+  //       leader_state = &candidate_state;
+  //       // leader_id = id_;
+  //     }
+  //   }
+  // }
   // No suitable leader was found within 100m and lateral distance of 2m
   if (!leader_state || min_longitudinal_dist > 100.0) {
     // todo: Fallback to default leader
@@ -273,13 +273,13 @@ bool XICAMCTSFunction::XICAIDMModel(const VehicleState &cur_state,
         0.0);
     apollo::common::math::Vec2d leader_xy(leader_state->x(), leader_state->y());
     apollo::common::SLPoint sl_point;
-    if (mcts_param_.obs_path_frenet.find("ego") ==
-        mcts_param_.obs_path_frenet.end()) {
-      // // AERROR << "xiepanpan No frenet path found for ego vehicle.";
-      return false;
-    }
+    // if (mcts_param_.obs_path_frenet.find("ego") ==
+    //     mcts_param_.obs_path_frenet.end()) {
+    //   // // AERROR << "xiepanpan No frenet path found for ego vehicle.";
+    //   return false;
+    // }
     // // ATRACE << "xiepanpan leader_state found.";
-    mcts_param_.obs_path_frenet.at("ego").XYToSL(leader_xy, &sl_point);
+    // mcts_param_.obs_path_frenet.at("ego").XYToSL(leader_xy, &sl_point);
     dist = sl_point.s() + idm_param.idmepsilon; // in case /0
   }
 
@@ -369,13 +369,13 @@ void XICAMCTSFunction::PreConstructTree(MCTSNode *root, bool is_pre_construct) {
     } else {
       // Project obstacle_prediction onto reference line
       for (auto &[id, obstacle] : mcts_param_.pred_obs) {
-        if (mcts_param_.obs_refline_info.find(id) ==
-            mcts_param_.obs_refline_info.end()) {
-          // AERROR << "xiepanpan No refline info found for obstacle: " << id;
-          continue;
-        }
-        const auto &ref_line_info = mcts_param_.obs_refline_info.at(id);
-        const auto &ref_line = ref_line_info->reference_line_ptr();
+        // if (mcts_param_.obs_refline_info.find(id) ==
+        //     mcts_param_.obs_refline_info.end()) {
+        //   // AERROR << "xiepanpan No refline info found for obstacle: " << id;
+        //   continue;
+        // }
+        // const auto &ref_line_info = mcts_param_.obs_refline_info.at(id);
+        // const auto &ref_line = ref_line_info->reference_line_ptr();
 
         int point_idx = static_cast<int>(
             (node->relative_time() + mcts_param_.time_step[node->iter()]) * 10);
@@ -389,24 +389,26 @@ void XICAMCTSFunction::PreConstructTree(MCTSNode *root, bool is_pre_construct) {
         double lateral = 0.0;
         common::math::Vec2d obs_point(obs_traj.path_point().x(),
                                       obs_traj.path_point().y());
-        if (!ref_line->GetProjection(obs_point, &accumulate_s, &lateral)) {
-          // AERROR << "Failed to project obstacle point onto reference line: "
-          // << id;
-          continue;
-        }
-        const auto &projected_ref_point = ref_line->GetPathPoint(accumulate_s);
-        next_state.at(id).set_x(projected_ref_point.x());
-        next_state.at(id).set_y(projected_ref_point.y());
-        next_state.at(id).set_s(projected_ref_point.s());
-        next_state.at(id).set_theta(projected_ref_point.theta());
-        next_state.at(id).set_vel(
-            obs_traj.v()); // TODO(xiepanpan): find better v.
-        next_state.at(id).set_acc(
-            obs_traj.a()); // TODO(xiepanpan): find better a.
-        next_state.at(id).set_kappa(projected_ref_point.kappa());
-        // TODO(xiepanpan): find better da/dkappa.
+        // if (!ref_line->GetProjection(obs_point, &accumulate_s, &lateral)) {
+        //   // AERROR << "Failed to project obstacle point onto reference line: "
+        //   // << id;
+        //   continue;
+        // // }
+        // const auto &projected_ref_point = ref_line->GetPathPoint(accumulate_s);
+        // next_state.at(id).set_x(projected_ref_point.x());
+        // next_state.at(id).set_y(projected_ref_point.y());
+        // next_state.at(id).set_s(projected_ref_point.s());
+        // next_state.at(id).set_theta(projected_ref_point.theta());
+        // next_state.at(id).set_vel(
+        //     obs_traj.v()); // TODO(xiepanpan): find better v.
+        // next_state.at(id).set_acc(
+        //     obs_traj.a()); // TODO(xiepanpan): find better a.
+        // next_state.at(id).set_kappa(projected_ref_point.kappa());
+        // // TODO(xiepanpan): find better da/dkappa.
+        // selected_action[id] =
+        //     VehicleAction(obs_traj.da(), projected_ref_point.dkappa());
         selected_action[id] =
-            VehicleAction(obs_traj.da(), projected_ref_point.dkappa());
+        VehicleAction(0, 0);
       }
       // // ATRACE << "xiepanpan: Pre-constructed refline";
     }
@@ -556,11 +558,11 @@ bool XICAMCTSFunction::EgoSearchIDMModel(const VehicleAction &action,
   next_state.set_s(cur_state.s() + ds);
 
   // Safely evaluate the path point for the new s-coordinate
-  PathPoint *path_point_opt = nullptr;
+  PathPoint path_point;
   auto path_it = mcts_param_.obs_path.find("ego");
   if (path_it != mcts_param_.obs_path.end()) {
     // xiepanpan: Evaluate
-    path_point_opt = path_it->second.Evaluate(next_state.s());
+    path_point = path_it->second.Evaluate(next_state.s());
   } else {
     // ATRACE << "Path information for 'ego' not found.";
     return false;
@@ -742,21 +744,21 @@ bool XICAMCTSFunction::BoundaryCheck(MCTSNode *node,
       // wrt+e down the dis and lateral value
       VehicleStateDetails &cur_state = node->vehicle_states[id];
 
-      if (mcts_param_.obs_refline_info.find(id) ==
-          mcts_param_.obs_refline_info.end()) {
-        // // AERROR << "xiepanpan No refline info found for obstacle: " << id;
-        return false;
-      }
-      const auto &ref_line_info = mcts_param_.obs_refline_info.at(id);
-      const auto &ref_line = ref_line_info->reference_line_ptr();
+      // if (mcts_param_.obs_refline_info.find(id) ==
+      //     mcts_param_.obs_refline_info.end()) {
+      //   // // AERROR << "xiepanpan No refline info found for obstacle: " << id;
+      //   return false;
+      // }
+      // const auto &ref_line_info = mcts_param_.obs_refline_info.at(id);
+      // const auto &ref_line = ref_line_info->reference_line_ptr();
       double accumulate_s = 0.0;
       double lateral = 0.0;
       common::math::Vec2d obs_point(next_state.x(), next_state.y());
-      if (!ref_line->GetProjection(obs_point, &accumulate_s, &lateral)) {
-        // // AERROR << "xiepanpan Failed to project obstacle point onto
-        // reference line: " << id;
-        return false;
-      }
+      // if (!ref_line->GetProjection(obs_point, &accumulate_s, &lateral)) {
+      //   // // AERROR << "xiepanpan Failed to project obstacle point onto
+      //   // reference line: " << id;
+      //   return false;
+      // }
       cur_state.lateral_dis_to_prediction = lateral;
 
       if (std::fabs(lateral) > mcts_param_.veh_param.max_delta_l) {
@@ -767,10 +769,10 @@ bool XICAMCTSFunction::BoundaryCheck(MCTSNode *node,
         return false;
       }
       if (true) {
-        if (search_env == nullptr) {
-          // // AERROR << "Search environment is nullptr.";
-          return false;
-        }
+        // if (search_env == nullptr) {
+        //   // // AERROR << "Search environment is nullptr.";
+        //   return false;
+        // }
         common::math::Vec2d xy_helper(next_state.x(), next_state.y());
 
         // xiepanpan: Get occ value
@@ -955,13 +957,13 @@ double XICAMCTSFunction::XICASafetyReward(
   apollo::common::math::Vec2d ego_xy(ego_state.x(), ego_state.y());
   apollo::common::SLPoint ego_sl_point;
 
-  if (mcts_param_.obs_path_frenet.find("ego") ==
-      mcts_param_.obs_path_frenet.end()) {
-    // AERROR << "No ego trajectory found in obs_path_frenet.";
-    return -888;
-  }
+  // if (mcts_param_.obs_path_frenet.find("ego") ==
+  //     mcts_param_.obs_path_frenet.end()) {
+  //   // AERROR << "No ego trajectory found in obs_path_frenet.";
+  //   return -888;
+  // }
 
-  mcts_param_.obs_path_frenet.at("ego").XYToSL(ego_xy, &ego_sl_point);
+  // mcts_param_.obs_path_frenet.at("ego").XYToSL(ego_xy, &ego_sl_point);
   double longitudinal_dist_ego = ego_sl_point.s();
   double lateral_dist_ego = ego_sl_point.l();
 
@@ -973,7 +975,7 @@ double XICAMCTSFunction::XICASafetyReward(
 
     apollo::common::math::Vec2d agent_xy(agent_state.x(), agent_state.y());
     apollo::common::SLPoint agent_sl_point;
-    mcts_param_.obs_path_frenet.at("ego").XYToSL(agent_xy, &agent_sl_point);
+    // mcts_param_.obs_path_frenet.at("ego").XYToSL(agent_xy, &agent_sl_point);
 
     double lateral_distance = agent_sl_point.l() - lateral_dist_ego;
     double longitudinal_distance = agent_sl_point.s() - longitudinal_dist_ego;
@@ -1009,7 +1011,7 @@ XICAMCTSFunction::XICAPredictionReward(const VehicleState &veh_state,
   constexpr double DIST_THRESHOLD_MAX = 4.0; // Distance >= 4.0m => Reward = 0.0
 
   // Check if the prediction obstacle has a valid trajectory
-  if (pred_obs.trajectory().empty() || pred_obs.trajectory(0).size() == 0) {
+  if (pred_obs.trajectory().empty() || pred_obs.trajectory(0).points.size() == 0) {
     return 0.0;
   }
 
@@ -1324,7 +1326,7 @@ bool XICAMCTSFunction::AccModel(const VehicleAction &action,
     apollo::common::SLPoint sl_point;
     sl_point.set_s(next_state.s());
     sl_point.set_l(cur_state.l());
-    mcts_param_.obs_path_frenet.at(id).SLToXY(sl_point, &new_xy);
+    // mcts_param_.obs_path_frenet.at(id).SLToXY(sl_point, &new_xy);
     next_state.set_x(new_xy.x());
     next_state.set_y(new_xy.y());
     next_state.set_l(cur_state.l());

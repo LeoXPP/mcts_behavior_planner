@@ -39,13 +39,19 @@ static bool SolveQuadraticEquationForRealRoots(const float a, const float b, con
   return true;
 }
 
-bool BehaviorMCTSFunctionBase::SetSearchEnv(SearchEnvironmentPtr search_env) {
-  if (search_env == nullptr) {
-    // ATRACE << "xiepanpan: search_env is nullptr";
-    return false;
-  }
-  search_env_ = search_env;
-  return true;
+// bool BehaviorMCTSFunctionBase::SetSearchEnv(SearchEnvironmentPtr search_env) {
+//   if (search_env == nullptr) {
+//     // ATRACE << "xiepanpan: search_env is nullptr";
+//     return false;
+//   }
+//   search_env_ = search_env;
+//   return true;
+// }
+inline double get_max_dkappa(double current_velocity) {
+  // 假设最大角速度变化与速度成线性关系
+  double max_dkappa_rate = 0.5; // 最大角速度变化率（可以根据具体情况调整）
+  double max_dkappa = max_dkappa_rate * current_velocity;
+  return max_dkappa;
 }
 
 bool BehaviorMCTSFunctionBase::JerkModel(const VehicleAction &action, const VehicleState &cur_state,
@@ -74,7 +80,7 @@ bool BehaviorMCTSFunctionBase::JerkModel(const VehicleAction &action, const Vehi
     return false;
   }
   if (new_acc < mcts_param_.veh_param.min_acc) {
-    new_acc = common::math::Clamp(new_acc, mcts_param_.veh_param.min_acc, mcts_param_.veh_param.max_acc);
+    new_acc = std::min(std::max(new_acc, mcts_param_.veh_param.min_acc), mcts_param_.veh_param.max_acc);
     new_jerk = (new_acc - cur_state.acc()) / (dt + kEpsilon);
     // check jerk: last acc is already too large or too small
     if (check_valid && std::fabs(new_jerk) < kEpsilon) {
@@ -214,7 +220,7 @@ bool BehaviorMCTSFunctionBase::PredictionModel(const VehicleAction &action, cons
   next_state.set_vel(new_vel);
   next_state.set_acc(new_acc);
   next_state.set_s(cur_state.s() + ds);
-  apollo::common::PathPoint path_point = obs_path.Evaluate(next_state.s());
+  PathPoint path_point = obs_path.Evaluate(next_state.s());
 
   // position
   next_state.set_x(path_point.x());
@@ -240,7 +246,7 @@ double BehaviorMCTSFunctionBase::SafetyReward(const std::unordered_map<std::stri
   if (dis_lat >= mcts_param_.max_reward_distance) {
     return 1.0;
   } else {
-    ATRACE << "XIEPANPAN: SafetyReward" << std::min(dis_lat, mcts_param_.max_reward_distance) / mcts_param_.max_reward_distance;
+    // ATRACE << "XIEPANPAN: SafetyReward" << std::min(dis_lat, mcts_param_.max_reward_distance) / mcts_param_.max_reward_distance;
     return std::min(dis_lat, mcts_param_.max_reward_distance) / mcts_param_.max_reward_distance;
   }
 }
@@ -260,9 +266,9 @@ double BehaviorMCTSFunctionBase::AccelerationReward(const VehicleState &veh_stat
 
 // Prediction Trajectory reward
 double BehaviorMCTSFunctionBase::PredictionReward(const VehicleState &veh_state, const double cur_t,
-                                                  const apollo::prediction::PredictionObstacle &pred_obs) {
+                                                  const PredictionObstacle &pred_obs) {
   double dis = mcts_param_.max_reward_distance;
-  int point_idx = std::min(static_cast<int>(cur_t / 0.1), pred_obs.trajectory()[0].trajectory_point().size() - 1);
+  int point_idx = std::min(static_cast<int>(cur_t / 0.1), static_cast<int>(pred_obs.trajectory()[0].trajectory_point().size() - 1));
   auto &traj_point = pred_obs.trajectory()[0].trajectory_point()[point_idx];
   double target_x = traj_point.path_point().x();
   double target_y = traj_point.path_point().y();
@@ -272,7 +278,7 @@ double BehaviorMCTSFunctionBase::PredictionReward(const VehicleState &veh_state,
 
 // Reference line reward
 double BehaviorMCTSFunctionBase::ReferenceLineReward(const VehicleState &veh_state,
-                                                     const apollo::common::TrajectoryPoint &ego_traj) {
+                                                     const TrajectoryPoint &ego_traj) {
   double target_x = ego_traj.path_point().x();
   double target_y = ego_traj.path_point().y();
   double dis =
@@ -292,11 +298,11 @@ double BehaviorMCTSFunctionBase::ActionConsistencyReward(const VehicleAction &ve
 
 // History Consistency reward
 double BehaviorMCTSFunctionBase::HistoryConsistencyReward(const VehicleState &veh_state, const double cur_t,
-                                                          const prediction::Trajectory &last_modified_traj) {
+                                                          const Trajectory &last_modified_traj) {
   if (last_modified_traj.trajectory_point().empty()) {
     return 0.0;
   }
-  int cur_point_idx = std::min(static_cast<int>(cur_t / 0.2), last_modified_traj.trajectory_point().size() - 1);
+  int cur_point_idx = std::min(static_cast<int>(cur_t / 0.2), static_cast<int>(last_modified_traj.trajectory_point().size()) - 1);
   auto obs_traj_t = last_modified_traj.trajectory_point()[cur_point_idx];
   double target_x = obs_traj_t.path_point().x();
   double target_y = obs_traj_t.path_point().y();

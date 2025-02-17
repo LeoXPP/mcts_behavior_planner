@@ -5,12 +5,6 @@
 namespace apollo {
 namespace common {
 
-#include <cmath>
-#include <string>
-
-#include <cmath>
-#include <string>
-
 class SLPoint {
 public:
   // 属性：s_ 和 l_
