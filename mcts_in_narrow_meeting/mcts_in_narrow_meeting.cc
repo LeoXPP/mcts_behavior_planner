@@ -1,7 +1,7 @@
 #include "mcts_in_narrow_meeting.h"
-#include "common/SLPoint.h"
-#include "common/box2d.h"
-#include "common/math_utils.h"
+#include "SLPoint.h"
+#include "box2d.h"
+#include "math_utils.h"
 #include <limits>
 
 namespace apollo {
@@ -470,8 +470,8 @@ void XICAMCTSFunction::Prepuring(MCTSNode *new_node) {
     if (decision_type == DecisionType::ObsSearch) {
       apollo::common::math::Box2d obs_box(
           {next_state.at(id).x(), next_state.at(id).y()},
-          next_state.at(id).theta(), mcts_param_.pred_obs.at(id).length,
-          mcts_param_.pred_obs.at(id).width);
+          next_state.at(id).theta(), mcts_param_.pred_obs.at(id).length(),
+          mcts_param_.pred_obs.at(id).width());
       // Collision check: ego
       double dis = std::hypot(next_state.at(id).x() - next_state.at("ego").x(),
                               next_state.at(id).y() - next_state.at("ego").y());

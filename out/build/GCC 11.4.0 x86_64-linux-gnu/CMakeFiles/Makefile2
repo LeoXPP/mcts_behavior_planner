@@ -81,12 +81,12 @@ clean: CMakeFiles/VehicleExecutable.dir/clean
 CMakeFiles/VehicleExecutable.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/VehicleExecutable.dir/build.make CMakeFiles/VehicleExecutable.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/VehicleExecutable.dir/build.make CMakeFiles/VehicleExecutable.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=1,2 "Built target VehicleExecutable"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16 "Built target VehicleExecutable"
 .PHONY : CMakeFiles/VehicleExecutable.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/VehicleExecutable.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" 2
+	$(CMAKE_COMMAND) -E cmake_progress_start "/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" 16
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/VehicleExecutable.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start "/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" 0
 .PHONY : CMakeFiles/VehicleExecutable.dir/rule

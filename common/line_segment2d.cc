@@ -14,14 +14,14 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include "common/line_segment2d.h"
+#include "line_segment2d.h"
 
 #include <algorithm>
 #include <cmath>
 #include <utility>
 
 
-#include "common/math_utils.h"
+#include "math_utils.h"
 
 namespace apollo {
 namespace common {

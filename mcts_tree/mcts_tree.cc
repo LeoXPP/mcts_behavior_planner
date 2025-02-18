@@ -1,4 +1,6 @@
-#include "mcts_tree/mcts_tree.h"
+#include "mcts_tree.h"
+#include <chrono>
+#include <iostream>
 
 namespace apollo {
 namespace BehaviorPlanner {
@@ -29,7 +31,7 @@ MCTSNode *MCTSTree::Select(double c) {
 bool MCTSTree::UctSearch() {
   MCTSNode *node = nullptr;
   double duration = 0.0;
-  auto start_t = time::Time::Now();
+  auto start_t = std::chrono::steady_clock::now();
   int max_node_iter = 0;
   int iter_num = 0;
   for (int iter = 0; iter < mcts_func_->mcts_param().max_search_iter; iter++) {
@@ -40,7 +42,7 @@ bool MCTSTree::UctSearch() {
       max_node_iter = node->iter();
     }
     if (!node) {
-      AERROR << "Error: Select node is nullptr";
+      std::cout  << "Error: Select node is nullptr";
       return false;
     }
 
@@ -51,31 +53,32 @@ bool MCTSTree::UctSearch() {
       DefaultPolicy(new_node);
     }
 
-    duration = (time::Time::Now() - start_t).toSec() * 1000.0;
+    duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::steady_clock::now() - start_t).count();
 
     // Early stop
     if (duration > mcts_func_->mcts_param().max_search_time) {
-      AWARN << "Behavior search " << (iter + 1) << " iters in " << duration
+      std::cout   << "Behavior search " << (iter + 1) << " iters in " << duration
             << " ms.";
       break;
     }
     if (node->visits() / mcts_func_->mcts_param().max_search_iter > 0.5) {
-      ATRACE << "Early stopping: Search converged to one node";
+      std::cout   << "Early stopping: Search converged to one node";
       break;
     }
     // if (iter > 1000 && iter / size_ > 2.0) {
-    //   ATRACE << "Early stopping: Search converged to certain branch";
+    //   std::cout   << "Early stopping: Search converged to certain branch";
     //   break;
     // }
   }
-  ATRACE << "xiepanpan: iter_num is" << iter_num;
+  std::cout   << "xiepanpan: iter_num is" << iter_num;
   if (root_->size() == 0) {
-    ATRACE << "No valid action found";
+    std::cout   << "No valid action found";
     return false;
   }
   if (valid_size_ < mcts_func_->mcts_param().min_valid_node_num) {
-    // ATRACE << "xiepanpan: max_node_iter in all node is: " << max_node_iter;
-    // ATRACE << "xiepanpan: Unreasonable valid node size: " << valid_size_;
+    // std::cout   << "xiepanpan: max_node_iter in all node is: " << max_node_iter;
+    // std::cout   << "xiepanpan: Unreasonable valid node size: " << valid_size_;
     return false;
   }
   return true;
@@ -121,7 +124,7 @@ void MCTSTree::Backpropagate(MCTSNode *node, int number_of_threads) {
 
 MCTSNode *MCTSTree::Expand(MCTSNode *node) {
   if (node->IsFullyExpanded()) {
-    AERROR << "Warning: Cannot expand this node any more!";
+    std::cout  << "Warning: Cannot expand this node any more!";
     return nullptr;
   }
   MCTSNode *new_node = tree_node_pool_->GetTreeNode();
@@ -170,7 +173,7 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
     nlohmann::json j;
     j["nodes"] = nlohmann::json::array();
     if (!root_) {
-      AWARN << "Root is null. Cannot save visualization.";
+      std::cout   << "Root is null. Cannot save visualization.";
       return false;
     }
     // BFS traversal
@@ -182,7 +185,7 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
       q.pop();
 
       if (node == nullptr) {
-        AWARN << "Encountered null node at depth: " << depth;
+        std::cout   << "Encountered null node at depth: " << depth;
         continue;
       }
 
@@ -234,7 +237,7 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
           node_json["vehicle_rewards"] = vehicle_reward_json;
         } else {
           node_json["vehicle_rewards"] = nlohmann::json::object();
-          AWARN << "No reward details found for vehicle_id: " << vehicle_id
+          std::cout   << "No reward details found for vehicle_id: " << vehicle_id
                 << " in node_id: " << node->id();
         }
         auto is_state = node->vehicle_states.find(vehicle_id);
@@ -252,7 +255,7 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
           node_json["vehicle_states"] = vehicle_state_json;
         } else {
           node_json["vehicle_states"] = nlohmann::json::object();
-          // AWARN << "No state details found for vehicle_id: " << vehicle_id <<
+          // std::cout   << "No state details found for vehicle_id: " << vehicle_id <<
           // " in node_id: " << node->id();
         }
 
@@ -271,7 +274,7 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
         if (child != nullptr) {
           q.push({child, depth + 1});
         } else {
-          AWARN << "Encountered null child of node_id: " << node->id();
+          std::cout   << "Encountered null child of node_id: " << node->id();
         }
       }
     }
@@ -286,15 +289,15 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
     filename += "_" + seq_num_str + "_" + timestamp + ".json";
     std::ofstream ofs(filename);
     if (!ofs.is_open()) {
-      ATRACE << "Failed to open file: " << filename;
+      std::cout   << "Failed to open file: " << filename;
       return false;
     }
     ofs << j.dump(4);
     ofs.close();
-    ATRACE << "MCTS tree visualization saved to " << filename;
+    std::cout   << "MCTS tree visualization saved to " << filename;
     return true;
   } catch (const std::exception &e) {
-    AWARN << "Exception during SaveTreeVisualization: " << e.what();
+    std::cout   << "Exception during SaveTreeVisualization: " << e.what();
     return false;
   }
 }
@@ -307,7 +310,7 @@ bool MCTSTree::SearchBestStateSeq() {
     cur_node = cur_node->SelectBestChild(0.0);
     cur_node->set_optimal(true);
     if (!cur_node->is_valid()) {
-      AWARN << "Invalid node found in best action sequence";
+      std::cout   << "Invalid node found in best action sequence";
       return false;
     }
   }
@@ -316,7 +319,7 @@ bool MCTSTree::SearchBestStateSeq() {
   }
   int result_size = best_node_seq_.size();
   if (result_size < mcts_func_->mcts_param().max_iter) {
-    AWARN << "No valid action sequence found";
+    std::cout   << "No valid action sequence found";
     return false;
   }
   return true;
@@ -330,7 +333,7 @@ bool MCTSTree::SearchBestNodeSeq() {
     cur_node = cur_node->SelectBestChild(0.0);
     cur_node->set_optimal(true);
     if (!cur_node->is_valid()) {
-      AWARN << "Invalid node found in best action sequence";
+      std::cout   << "Invalid node found in best action sequence";
       return false;
     }
   }
@@ -339,15 +342,15 @@ bool MCTSTree::SearchBestNodeSeq() {
   }
   int result_size = best_node_seq_.size();
   if (result_size < mcts_func_->mcts_param().max_iter) {
-    AWARN << "No valid action sequence found";
+    std::cout   << "No valid action sequence found";
     return false;
   }
   return true;
 }
 
 void MCTSTree::DebugString() const {
-  // ATRACE << "Tree size: " << size();
-  ATRACE << "Valid node size: " << valid_size_;
+  // std::cout   << "Tree size: " << size();
+  std::cout   << "Valid node size: " << valid_size_;
   root_->DebugString();
 }
 

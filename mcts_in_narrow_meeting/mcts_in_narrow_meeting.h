@@ -2,8 +2,8 @@
 
 #include "../mcts_base/mcts_base.h"
 #include "../tree_node/tree_node.h"
-#include "common/vec2d.h"
-#include "common/trajectory_point.h"
+#include "../common/vec2d.h"
+#include "../common/trajectory_point.h"
 
 #include <algorithm>
 

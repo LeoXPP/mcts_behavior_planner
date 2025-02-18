@@ -69,31 +69,255 @@ include CMakeFiles/VehicleExecutable.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/VehicleExecutable.dir/flags.make
 
-CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
-CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.o: ../../../behavior_planner.cc
-CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.o"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.o -MF CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.o.d -o CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/behavior_planner.cc
+CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.o: ../../../behavior_planner/behavior_planner.cc
+CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.o -MF CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.o.d -o CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/behavior_planner/behavior_planner.cc
 
-CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.i"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/behavior_planner.cc > CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.i
+CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/behavior_planner/behavior_planner.cc > CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.i
 
-CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.s"
-	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/behavior_planner.cc -o CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.s
+CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/behavior_planner/behavior_planner.cc -o CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.s
+
+CMakeFiles/VehicleExecutable.dir/bp_main.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/bp_main.cc.o: ../../../bp_main.cc
+CMakeFiles/VehicleExecutable.dir/bp_main.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/VehicleExecutable.dir/bp_main.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/bp_main.cc.o -MF CMakeFiles/VehicleExecutable.dir/bp_main.cc.o.d -o CMakeFiles/VehicleExecutable.dir/bp_main.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/bp_main.cc
+
+CMakeFiles/VehicleExecutable.dir/bp_main.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/bp_main.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/bp_main.cc > CMakeFiles/VehicleExecutable.dir/bp_main.cc.i
+
+CMakeFiles/VehicleExecutable.dir/bp_main.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/bp_main.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/bp_main.cc -o CMakeFiles/VehicleExecutable.dir/bp_main.cc.s
+
+CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.o: ../../../common/aabox2d.cc
+CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.o -MF CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.o.d -o CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/common/aabox2d.cc
+
+CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/common/aabox2d.cc > CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.i
+
+CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/common/aabox2d.cc -o CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.s
+
+CMakeFiles/VehicleExecutable.dir/common/angle.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/common/angle.cc.o: ../../../common/angle.cc
+CMakeFiles/VehicleExecutable.dir/common/angle.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/VehicleExecutable.dir/common/angle.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/common/angle.cc.o -MF CMakeFiles/VehicleExecutable.dir/common/angle.cc.o.d -o CMakeFiles/VehicleExecutable.dir/common/angle.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/common/angle.cc
+
+CMakeFiles/VehicleExecutable.dir/common/angle.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/common/angle.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/common/angle.cc > CMakeFiles/VehicleExecutable.dir/common/angle.cc.i
+
+CMakeFiles/VehicleExecutable.dir/common/angle.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/common/angle.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/common/angle.cc -o CMakeFiles/VehicleExecutable.dir/common/angle.cc.s
+
+CMakeFiles/VehicleExecutable.dir/common/box2d.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/common/box2d.cc.o: ../../../common/box2d.cc
+CMakeFiles/VehicleExecutable.dir/common/box2d.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/VehicleExecutable.dir/common/box2d.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/common/box2d.cc.o -MF CMakeFiles/VehicleExecutable.dir/common/box2d.cc.o.d -o CMakeFiles/VehicleExecutable.dir/common/box2d.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/common/box2d.cc
+
+CMakeFiles/VehicleExecutable.dir/common/box2d.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/common/box2d.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/common/box2d.cc > CMakeFiles/VehicleExecutable.dir/common/box2d.cc.i
+
+CMakeFiles/VehicleExecutable.dir/common/box2d.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/common/box2d.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/common/box2d.cc -o CMakeFiles/VehicleExecutable.dir/common/box2d.cc.s
+
+CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.o: ../../../common/line_segment2d.cc
+CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.o -MF CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.o.d -o CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/common/line_segment2d.cc
+
+CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/common/line_segment2d.cc > CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.i
+
+CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/common/line_segment2d.cc -o CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.s
+
+CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.o: ../../../common/math_utils.cc
+CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.o -MF CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.o.d -o CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/common/math_utils.cc
+
+CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/common/math_utils.cc > CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.i
+
+CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/common/math_utils.cc -o CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.s
+
+CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.o: ../../../common/polygon2d.cc
+CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.o -MF CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.o.d -o CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/common/polygon2d.cc
+
+CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/common/polygon2d.cc > CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.i
+
+CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/common/polygon2d.cc -o CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.s
+
+CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.o: ../../../common/sin_table.cc
+CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.o -MF CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.o.d -o CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/common/sin_table.cc
+
+CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/common/sin_table.cc > CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.i
+
+CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/common/sin_table.cc -o CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.s
+
+CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.o: ../../../common/vec2d.cc
+CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.o -MF CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.o.d -o CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/common/vec2d.cc
+
+CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/common/vec2d.cc > CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.i
+
+CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/common/vec2d.cc -o CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.s
+
+CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.o: ../../../mcts_base/mcts_base.cc
+CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.o -MF CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.o.d -o CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/mcts_base/mcts_base.cc
+
+CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/mcts_base/mcts_base.cc > CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.i
+
+CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/mcts_base/mcts_base.cc -o CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.s
+
+CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.o: ../../../mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc
+CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.o -MF CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.o.d -o CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc
+
+CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc > CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.i
+
+CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc -o CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.s
+
+CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.o: ../../../mcts_tree/mcts_tree.cc
+CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.o -MF CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.o.d -o CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/mcts_tree/mcts_tree.cc
+
+CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/mcts_tree/mcts_tree.cc > CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.i
+
+CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/mcts_tree/mcts_tree.cc -o CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.s
+
+CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.o: ../../../tree_node/tree_node.cc
+CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.o -MF CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.o.d -o CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/tree_node/tree_node.cc
+
+CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/tree_node/tree_node.cc > CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.i
+
+CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/tree_node/tree_node.cc -o CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.s
+
+CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.o: CMakeFiles/VehicleExecutable.dir/flags.make
+CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.o: ../../../vehicle_state/vehicle_state.cc
+CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.o: CMakeFiles/VehicleExecutable.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.o"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.o -MF CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.o.d -o CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.o -c /home/xie/XPP_ARTICLE_CODE/article_code/vehicle_state/vehicle_state.cc
+
+CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.i"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/xie/XPP_ARTICLE_CODE/article_code/vehicle_state/vehicle_state.cc > CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.i
+
+CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.s"
+	/usr/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/xie/XPP_ARTICLE_CODE/article_code/vehicle_state/vehicle_state.cc -o CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.s
 
 # Object files for target VehicleExecutable
 VehicleExecutable_OBJECTS = \
-"CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.o"
+"CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/bp_main.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/common/angle.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/common/box2d.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.o" \
+"CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.o"
 
 # External object files for target VehicleExecutable
 VehicleExecutable_EXTERNAL_OBJECTS =
 
-VehicleExecutable: CMakeFiles/VehicleExecutable.dir/behavior_planner.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/behavior_planner/behavior_planner.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/bp_main.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/common/aabox2d.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/common/angle.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/common/box2d.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/common/line_segment2d.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/common/math_utils.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/common/polygon2d.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/common/sin_table.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/common/vec2d.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/mcts_base/mcts_base.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/mcts_in_narrow_meeting/mcts_in_narrow_meeting.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/mcts_tree/mcts_tree.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/tree_node/tree_node.cc.o
+VehicleExecutable: CMakeFiles/VehicleExecutable.dir/vehicle_state/vehicle_state.cc.o
 VehicleExecutable: CMakeFiles/VehicleExecutable.dir/build.make
 VehicleExecutable: CMakeFiles/VehicleExecutable.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable VehicleExecutable"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_16) "Linking CXX executable VehicleExecutable"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/VehicleExecutable.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -14,7 +14,7 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include "modules/common/math/math_utils.h"
+#include "math_utils.h"
 
 #include <cmath>
 #include <utility>
@@ -79,16 +79,16 @@ double Gaussian(const double u, const double std, const double x) {
          std::exp(-(x - u) * (x - u) / (2 * std * std));
 }
 
-Eigen::Vector2d RotateVector2d(const Eigen::Vector2d& v_in,
-                               const double theta) {
-  const double cos_theta = std::cos(theta);
-  const double sin_theta = std::sin(theta);
+// Eigen::Vector2d RotateVector2d(const Eigen::Vector2d& v_in,
+//                                const double theta) {
+//   const double cos_theta = std::cos(theta);
+//   const double sin_theta = std::sin(theta);
 
-  auto x = cos_theta * v_in.x() - sin_theta * v_in.y();
-  auto y = sin_theta * v_in.x() + cos_theta * v_in.y();
+//   auto x = cos_theta * v_in.x() - sin_theta * v_in.y();
+//   auto y = sin_theta * v_in.x() + cos_theta * v_in.y();
 
-  return {x, y};
-}
+//   return {x, y};
+// }
 
 std::pair<double, double> Cartesian2Polar(double x, double y) {
   double r = std::sqrt(x * x + y * y);

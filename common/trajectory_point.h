@@ -68,6 +68,8 @@ public:
   // 获取内部的 PathPoint 对象（只读）
   const PathPoint &path_point() const { return path_point_; }
 
+  PathPoint &set_path_point() { return path_point_; }
+
   // 获取速度、加速度和加速度变化
   double v() const { return v_; }
   double a() const { return a_; }
@@ -138,23 +140,29 @@ struct PredictionObstacle {
   std::vector<Trajectory> trajectories;
 
   // 障碍物尺寸信息（例如长和宽）
-  double length;
-  double width;
+  double length_;
+  double width_;
+  double speed_;
 
   // 其他可选信息（例如预测置信度）
-  double confidence;
+  double confidence_;
 
   // 默认构造函数
-  PredictionObstacle() : length(0.0), width(0.0), confidence(1.0) {}
+  PredictionObstacle() : length_(0.0), width_(0.0), speed_(0.0),confidence_(1.0) {}
 
   // 带参数的构造函数
-  PredictionObstacle(double len, double wid, double conf = 1.0)
-      : length(len), width(wid), confidence(conf) {}
+  PredictionObstacle(double len, double wid, double spd, double conf = 1.0)
+      : length_(len), width_(wid), speed_(spd), confidence_(conf) {}
 
   // 返回所有预测轨迹
   const std::vector<Trajectory> &trajectory() const { return trajectories; }
 
   const Trajectory &trajectory(int index) const { return trajectories[index]; }
+
+  double length() const { return length_; }
+  double width() const { return width_; }
+  double speed() const { return speed_; }
+  double confidence() const { return confidence_; }
 
   // 添加一条预测轨迹
   void AddTrajectory(const Trajectory &traj) { trajectories.push_back(traj); }

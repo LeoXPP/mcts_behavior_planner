@@ -5,9 +5,9 @@
 #include <string>
 #include <vector>
 
-#include "common/aabox2d.h"
-#include "common/line_segment2d.h"
-#include "common/vec2d.h"
+#include "aabox2d.h"
+#include "line_segment2d.h"
+#include "vec2d.h"
 namespace apollo {
 namespace common {
 namespace math {

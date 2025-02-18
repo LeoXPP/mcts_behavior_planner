@@ -28,7 +28,7 @@
 
 // #include "Eigen/Dense"
 
-#include "common/vec2d.h"
+#include "../common/vec2d.h"
 
 /**
  * @namespace apollo::common::math

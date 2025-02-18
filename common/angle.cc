@@ -14,9 +14,9 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include "common/angle.h"
+#include "angle.h"
 
-#include "common/sin_table.h"
+#include "sin_table.h"
 
 namespace apollo {
 namespace common {

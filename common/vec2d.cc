@@ -85,7 +85,7 @@ Vec2d Vec2d::operator*(const double ratio) const {
 }
 
 Vec2d Vec2d::operator/(const double ratio) const {
-  CHECK_GT(std::abs(ratio), kMathEpsilon);
+  // // CHECK_GT(std::abs(ratio), kMathEpsilon);
   return Vec2d(x_ / ratio, y_ / ratio);
 }
 
@@ -108,7 +108,7 @@ Vec2d &Vec2d::operator*=(const double ratio) {
 }
 
 Vec2d &Vec2d::operator/=(const double ratio) {
-  CHECK_GT(std::abs(ratio), kMathEpsilon);
+  // CHECK_GT(std::abs(ratio), kMathEpsilon);
   x_ /= ratio;
   y_ /= ratio;
   return *this;

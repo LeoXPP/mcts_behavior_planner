@@ -23,7 +23,7 @@
 
 #include <string>
 
-#include "common/vec2d.h"
+#include "vec2d.h"
 
 /**
  * @namespace apollo::common::math

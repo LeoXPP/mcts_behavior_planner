@@ -14,15 +14,15 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include "common/box2d.h"
+#include "box2d.h"
 
 #include <algorithm>
 #include <cmath>
 #include <utility>
 
 
-#include "common/math_utils.h"
-#include "common/polygon2d.h"
+#include "math_utils.h"
+#include "polygon2d.h"
 
 namespace apollo {
 namespace common {
@@ -58,8 +58,8 @@ Box2d::Box2d(const Vec2d &center, const double heading, const double length,
       heading_(heading),
       cos_heading_(cos(heading)),
       sin_heading_(sin(heading)) {
-  CHECK_GT(length_, -kMathEpsilon);
-  CHECK_GT(width_, -kMathEpsilon);
+  // // CHECK_GT(length_, -kMathEpsilon);
+  // // CHECK_GT(width_, -kMathEpsilon);
   InitCorners();
 }
 
@@ -72,8 +72,8 @@ Box2d::Box2d(const Vec2d &point, double heading, double front_length,
       heading_(heading),
       cos_heading_(cos(heading)),
       sin_heading_(sin(heading)) {
-  CHECK_GT(length_, -kMathEpsilon);
-  CHECK_GT(width_, -kMathEpsilon);
+  // CHECK_GT(length_, -kMathEpsilon);
+  // CHECK_GT(width_, -kMathEpsilon);
   double delta_length = (front_length - back_length) / 2.0;
   center_ = Vec2d(point.x() + cos_heading_ * delta_length,
                   point.y() + sin_heading_ * delta_length);
@@ -89,8 +89,8 @@ Box2d::Box2d(const LineSegment2d &axis, const double width)
       heading_(axis.heading()),
       cos_heading_(axis.cos_heading()),
       sin_heading_(axis.sin_heading()) {
-  CHECK_GT(length_, -kMathEpsilon);
-  CHECK_GT(width_, -kMathEpsilon);
+  // CHECK_GT(length_, -kMathEpsilon);
+  // CHECK_GT(width_, -kMathEpsilon);
   InitCorners();
 }
 
@@ -122,8 +122,8 @@ Box2d::Box2d(const AABox2d &aabox)
       heading_(0.0),
       cos_heading_(1.0),
       sin_heading_(0.0) {
-  CHECK_GT(length_, -kMathEpsilon);
-  CHECK_GT(width_, -kMathEpsilon);
+  // CHECK_GT(length_, -kMathEpsilon);
+  // CHECK_GT(width_, -kMathEpsilon);
 }
 
 Box2d Box2d::CreateAABox(const Vec2d &one_corner,
@@ -328,8 +328,8 @@ double Box2d::DistanceTo(const LineSegment2d &line_segment) const {
         return 0.0;
     }
   }
-  ACHECK(0) << "unimplemented state: " << gx1 << " " << gy1 << " " << gx2 << " "
-            << gy2;
+  // ACHECK(0) << "unimplemented state: " << gx1 << " " << gy1 << " " << gx2 << " "
+  //           << gy2;
   return 0.0;
 }
 
@@ -413,11 +413,7 @@ void Box2d::LateralExtend(const double extension_length) {
   InitCorners();
 }
 
-std::string Box2d::DebugString() const {
-  return absl::StrCat("box2d ( center = ", center_.DebugString(),
-                      "  heading = ", heading_, "  length = ", length_,
-                      "  width = ", width_, " )");
-}
+
 
 }  // namespace math
 }  // namespace common

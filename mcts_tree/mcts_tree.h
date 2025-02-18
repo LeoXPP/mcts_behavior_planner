@@ -8,13 +8,16 @@
 #include <sstream>
 #include <vector>
 
-#include "mcts_base/mcts_base.h"
+#include "../mcts_base/mcts_base.h"
+#include "../tree_node/tree_node_pool.h"
 #include <chrono>
 #include <iostream>
 #include <string>
 
 namespace apollo {
 namespace BehaviorPlanner {
+
+using TreeNodePoolPtr = std::shared_ptr<TreeNodePool>;
 
 class MCTSTree {
 public:

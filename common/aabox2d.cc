@@ -14,7 +14,7 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include "common/aabox2d.h"
+#include "aabox2d.h"
 
 #include <algorithm>
 #include <cmath>

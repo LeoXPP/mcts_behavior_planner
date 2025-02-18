@@ -14,14 +14,14 @@
  * limitations under the License.
  *****************************************************************************/
 
-#include "common/polygon2d.h"
+#include "polygon2d.h"
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
 #include <utility>
 
-#include "common/math_utils.h"
+#include "math_utils.h"
 
 namespace apollo {
 namespace common {
