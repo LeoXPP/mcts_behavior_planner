@@ -34,10 +34,29 @@ bool Planner::MakeDecision() {
     if (!ConstructMCTree()) {
       return false;
     }
+
+    if (!mcts_tree_->UctSearch()) {
+      std::cout << "UctSearch failed!" << std::endl;
+    }
+
+    // 4.Modify Trajectory
+    if (!InterpolateResult(true)) {
+      std::cout << "Failed interpolation";
+      continue;
+    }
   }
 
   return true;
 }
+
+bool Planner::InterpolateResult(bool need_extend) {
+  // Only for decision obstacles
+  mcts_tree_->SaveTreeVisualization("xiepanpan_mcst_tree.json", 1);
+
+  return true;
+}
+
+
 
 bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
                                    const std::string &id,
@@ -48,7 +67,7 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
   mcts_param_.obs_target_speed[id] = obstacle.speed();
 
   // Prediction obstacles
-  pred_obs_.clear();
+  // pred_obs_.clear();
   pred_obs_[id] = obstacle;
   if (pred_obs_.at(id).trajectory().size() == 0 ||
       pred_obs_.at(id).trajectory()[0].trajectory_point().size() == 0) {
@@ -75,10 +94,10 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
     cur_t += mcts_param_.time_step[i];
     if (ego_traj_.TrajectoryPointAt(ego_traj_.NumOfPoints() - 1)
             .relative_time() < cur_t) {
-      // ATRACE << "cur_t: " << cur_t << "relative_time: "
+      // std::cout << "cur_t: " << cur_t << "relative_time: "
       //  << ego_traj_.TrajectoryPointAt(ego_traj_.NumOfPoints() - 1)
       //         .relative_time();
-      // ATRACE << "xiepanpan: Ego traj length is not sufficient. Using constant
+      // std::cout << "xiepanpan: Ego traj length is not sufficient. Using constant
       // velocity model to extend.";
       auto last_valid_point = previous_ego_point;
       double last_x = last_valid_point.path_point().x();
@@ -115,7 +134,7 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
     //   return false;
     // }
     if (std::fabs(lateral) > mcts_param_.veh_param.max_delta_l) {
-      // ATRACE << "Ego lateral is too large.";
+      // std::cout << "Ego lateral is too large.";
       return false;
     }
   }
@@ -139,19 +158,19 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
   double agent_speed = obstacle.speed();
   double ego_speed = mcts_param_.ego_traj_points[0].v();
   double interval_speed = ego_speed - agent_speed;
-  // ATRACE << "agent speed: " << agent_speed << ", ego speed: " << ego_speed
+  // std::cout << "agent speed: " << agent_speed << ", ego speed: " << ego_speed
   //  << ", interval speed: " << interval_speed;
   if (interval_speed == 0.0) {
-    // ATRACE << "Interval speed is zero.";
+    // std::cout << "Interval speed is zero.";
     interval_speed = 0.1;
   } else if (interval_speed < 0) {
-    // ATRACE << "Interval speed is negative."
+    // std::cout << "Interval speed is negative."
     //  << ", orginal interval_speed: " << interval_speed;
     interval_speed = 0.1;
   }
   double reaction_time = decision_distance / interval_speed;
   if (reaction_time < mcts_param_.min_decision_delta_t) {
-    // ATRACE << "Obs " << id << "is too near to make decision."
+    // std::cout << "Obs " << id << "is too near to make decision."
     //  << ", reaction_time: " << reaction_time;
     return false;
   }
@@ -163,54 +182,17 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
   std::vector<common::math::Vec2d> path_points_xy;
   double s = 0.0;
   double max_vel = 10.0;
-  // for (int i = 0;
-  //      i < pred_obs_.at(id).trajectory()[0].trajectory_point().size(); ++i) {
-  //   auto *traj_point =
-  //       pred_obs_.at(id).mutable_trajectory(0)->mutable_trajectory_point(i);
-  //   if (!path_points.empty()) {
-  //     s += std::hypot(traj_point->path_point().x() - path_points.back().x(),
-  //                     traj_point->path_point().y() - path_points.back().y());
-  //   }
-  //   traj_point->mutable_path_point()->set_s(s);
-  //   path_points.emplace_back(traj_point->path_point());
-  //   path_points.back().set_s(s);
-  //   // Set max velocity according to prediction trajectory
-  //   max_vel = std::max(max_vel, traj_point->v());
-
-  //   // frenet frame
-  //   path_points_xy.emplace_back(traj_point->path_point().x(),
-  //                               traj_point->path_point().y());
-  // }
-  // mcts_param_.obs_path[id] = DiscretizedPath(path_points);
-  // mcts_param_.obs_path_frenet[id] =
-  // apollo::common::CurveBase(path_points_xy);
-
-  // if (!FindClosestReferenceLineAndProjectObstaclePositions(id)) {
-  //   // AERROR << "Failed to find closest reference line and project obstacle
-  //   "
-  //             "positions.";
-  //   mcts_param_.use_ref_pre_construct = false;
-  // }
-
   // ego frenet path
   std::vector<PathPoint> path_points_ego;
   std::vector<common::math::Vec2d> path_points_xy_ego;
-  // if(ego_traj_.empty()){
-  //   // AERROR << "Ego trajectory is empty.";
-  //   return false;
-  // }
+
   for (auto ego_traj_point : ego_traj_) {
     path_points_ego.emplace_back(ego_traj_point.path_point());
     path_points_xy_ego.emplace_back(ego_traj_point.path_point().x(),
                                     ego_traj_point.path_point().y());
   }
   mcts_param_.obs_path["ego"] = DiscretizedPath(path_points_ego);
-  // mcts_param_.obs_path_frenet["ego"] =
-  //     apollo::common::CurveBase(path_points_xy_ego);
-  // if (!mcts_param_.obs_path_frenet.at("ego").IsInit()) {
-  //   // AERROR << "Ego frenet path is not init.";
-  //   return false;
-  // }
+
   double kMathEpsilon = 1e-6;
   mcts_param_.veh_param.max_vel =
       std::min<double>(vel_factor * max_vel + kMathEpsilon,
@@ -223,10 +205,10 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
 
   if (mcts_param_.xica_need_ego_idm) {
     decision_type_["ego"] = DecisionType::EgoIDM;
-    // ATRACE << "xiepanpan: EgoIDM";
+    // std::cout << "xiepanpan: EgoIDM";
   } else {
     decision_type_["ego"] = DecisionType::EgoSearch;
-    // ATRACE << "xiepanpan: EgoSearch";
+    // std::cout << "xiepanpan: EgoSearch";
   }
 
   decision_type_[id] = DecisionType::ObsSearch;
@@ -254,9 +236,6 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
 
   std::vector<double> jerk_action{-2.0, -1.0, 0.0};
   std::vector<double> dkappa_action{-1.0, -0.75, -0.5, -0.25, 0, 0.25};
-
-  jerk_action.clear();
-  dkappa_action.clear();
 
   for (size_t i = 0; i < jerk_action.size(); ++i) {
     for (size_t j = 0; j < dkappa_action.size(); ++j) {
@@ -465,7 +444,6 @@ bool Planner::ConstructTestInput() {
     // 假设 s 与 x 同值，这里直接设置 s 与 x 相关
     pp.set_s(10.0 * i * 0.1);
 
-    // 设置曲率 kappa，与 i 相关，例如：kappa = 0.01 * i
     pp.set_kappa(0.00);
 
     // 此时 pp 已经根据 i 的值进行了初始化，可以继续使用 pp 进行后续操作

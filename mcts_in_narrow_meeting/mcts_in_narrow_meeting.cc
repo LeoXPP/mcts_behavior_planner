@@ -389,24 +389,6 @@ void XICAMCTSFunction::PreConstructTree(MCTSNode *root, bool is_pre_construct) {
         double lateral = 0.0;
         common::math::Vec2d obs_point(obs_traj.path_point().x(),
                                       obs_traj.path_point().y());
-        // if (!ref_line->GetProjection(obs_point, &accumulate_s, &lateral)) {
-        //   // AERROR << "Failed to project obstacle point onto reference line: "
-        //   // << id;
-        //   continue;
-        // // }
-        // const auto &projected_ref_point = ref_line->GetPathPoint(accumulate_s);
-        // next_state.at(id).set_x(projected_ref_point.x());
-        // next_state.at(id).set_y(projected_ref_point.y());
-        // next_state.at(id).set_s(projected_ref_point.s());
-        // next_state.at(id).set_theta(projected_ref_point.theta());
-        // next_state.at(id).set_vel(
-        //     obs_traj.v()); // TODO(xiepanpan): find better v.
-        // next_state.at(id).set_acc(
-        //     obs_traj.a()); // TODO(xiepanpan): find better a.
-        // next_state.at(id).set_kappa(projected_ref_point.kappa());
-        // // TODO(xiepanpan): find better da/dkappa.
-        // selected_action[id] =
-        //     VehicleAction(obs_traj.da(), projected_ref_point.dkappa());
         selected_action[id] =
         VehicleAction(0, 0);
       }
@@ -518,7 +500,7 @@ void XICAMCTSFunction::Prepuring(MCTSNode *new_node) {
 
 inline double get_max_dkappa(double current_velocity) {
   // 假设最大角速度变化与速度成线性关系
-  double max_dkappa_rate = 0.5; // 最大角速度变化率（可以根据具体情况调整）
+  double max_dkappa_rate = 0.1; // 最大角速度变化率（可以根据具体情况调整）
   double max_dkappa = max_dkappa_rate * current_velocity;
   return max_dkappa;
 }
@@ -793,7 +775,7 @@ bool XICAMCTSFunction::BoundaryCheck(MCTSNode *node,
       //     mcts_param_.obs_path.at(id), next_state.x(), next_state.y());
       // cur_state.lateral_dis_to_prediction = sl_point.second;
 
-      if (std::fabs(next_state.y()) > mcts_param_.veh_param.max_delta_l) {
+      if (std::fabs(next_state.y()) > mcts_param_.veh_param.max_delta_l + 4) {
         // // ATRACE << "xiepanpan: " << id <<"boundarycheck(use predicted traj
         // preconstruct) failed: lateral is too large ----" << sl_point.second;
         return false;

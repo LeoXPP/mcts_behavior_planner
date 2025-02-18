@@ -1,24 +1,34 @@
 {
-  "version": "0.2.0",
   "configurations": [
-    {
-      "name": "C/C++ Runner: Debug Session",
-      "type": "cppdbg",
-      "request": "launch",
-      "args": [],
-      "stopAtEntry": false,
-      "externalConsole": true,
-      "cwd": "c:/Users/19148/Desktop/article_code",
-      "program": "c:/Users/19148/Desktop/article_code/build/Debug/outDebug",
-      "MIMode": "gdb",
-      "miDebuggerPath": "gdb",
-      "setupCommands": [
+  {
+    "name": "(gdb) 管道启动",
+    "type": "cppdbg",
+    "request": "launch",
+    "program": "/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/VehicleExecutable",
+    "args": [],
+    "stopAtEntry": false,
+    "cwd": "${fileDirname}",
+    "environment": [],
+    "externalConsole": false,
+    "pipeTransport": {
+      "debuggerPath": "/usr/bin/gdb",
+      "pipeProgram": "/usr/bin/ssh",
+      "pipeArgs": [],
+      "pipeCwd": ""
+    },
+    "MIMode": "gdb",
+    "setupCommands": [
         {
-          "description": "Enable pretty-printing for gdb",
-          "text": "-enable-pretty-printing",
-          "ignoreFailures": true
+            "description": "为 gdb 启用整齐打印",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+        },
+        {
+            "description": "将反汇编风格设置为 Intel",
+            "text": "-gdb-set disassembly-flavor intel",
+            "ignoreFailures": true
         }
-      ]
-    }
+    ]
+  }
   ]
 }

@@ -3,10 +3,11 @@ cmake_minimum_required(VERSION 3.10)
 
 # 设置项目名称
 project(VehicleProject)
-
+set(CMAKE_BUILD_TYPE Debug)
 # 设置 C++17 标准
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_compile_options(-g -O0)  # -g生成调试符号，-O0禁用优化
 
 # 设置包含目录
 include_directories(

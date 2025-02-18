@@ -255,8 +255,8 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
           node_json["vehicle_states"] = vehicle_state_json;
         } else {
           node_json["vehicle_states"] = nlohmann::json::object();
-          // std::cout   << "No state details found for vehicle_id: " << vehicle_id <<
-          // " in node_id: " << node->id();
+          std::cout   << "No state details found for vehicle_id: " << vehicle_id <<
+          " in node_id: " << node->id();
         }
 
         node_json["visits"] = node->visits();
