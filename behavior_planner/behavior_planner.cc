@@ -207,7 +207,8 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
     decision_type_["ego"] = DecisionType::EgoIDM;
     // std::cout << "xiepanpan: EgoIDM";
   } else {
-    decision_type_["ego"] = DecisionType::EgoSearch;
+    // decision_type_["ego"] = DecisionType::EgoSearch;
+    decision_type_["ego"] = DecisionType::EgoPlanning;
     // std::cout << "xiepanpan: EgoSearch";
   }
 
@@ -381,8 +382,8 @@ bool Planner::LoadParams() {
   mcts_param.ego_agent_reward_adjust = 1.0; // ego_agent_reward_adjust: 1.0
 
   mcts_param.use_ref_pre_construct = false; // use_ref_pre_construct: false
-  mcts_param.xica_need_preconstruct = true; // xica_need_preconstruct: true
-  mcts_param.xica_need_ego_idm = true;      // xica_need_ego_idm: true
+  mcts_param.xica_need_preconstruct = false; // xica_need_preconstruct: true
+  mcts_param.xica_need_ego_idm = false;      // xica_need_ego_idm: true
 
   mcts_param.occ_bound_max = -1.0; // occ_bound_max: -1.0
 
@@ -427,73 +428,48 @@ bool Planner::LoadParams() {
   return true;
 }
 
-bool Planner::ConstructTestInput() {
-  // 设置 ego 车辆的目标速度与车辆参数（仅作为示例）
-
-  // ----- 构造主车（ego）的规划轨迹点 -----
-  // 从 (0,0) 出发，速度 10 m/s，加速度 0，逐步左转（航向角 theta 和 y
-  // 坐标逐渐增加）
-  for (int i = 0; i < 5; ++i) {
-    // 先创建并初始化 PathPoint 对象
-
+bool Planner::ConstructTestInput(const TestInputParams& params) {
+  // ----- 构造自车（ego）的规划轨迹点 -----
+  for (int i = 0; i < params.total_points; ++i) {
     PathPoint pp;
-    pp.set_x(10.0 * i * 0.1);
-    pp.set_y(0.2);
-    pp.set_theta(0.0);
+    const double t = i * params.delta_time;  // 当前时间
 
-    // 假设 s 与 x 同值，这里直接设置 s 与 x 相关
-    pp.set_s(10.0 * i * 0.1);
+    // 计算自车轨迹点：x轴匀速直线运动
+    pp.set_x(params.ego_initial_x + params.ego_speed * t);
+    pp.set_y(params.ego_initial_y);  // y 坐标保持不变
+    pp.set_theta(params.ego_initial_theta);
+    pp.set_s(params.ego_initial_s + params.ego_speed * t);
+    pp.set_kappa(params.ego_initial_kappa);
 
-    pp.set_kappa(0.00);
-
-    // 此时 pp 已经根据 i 的值进行了初始化，可以继续使用 pp 进行后续操作
-
-    // 使用初始化好的 PathPoint 对象来构造 TrajectoryPoint 对象
-    TrajectoryPoint tp(pp, 10.0, 0.0, 0.0, i); // 速度 10 m/s，加速度 0 m/s²
+    TrajectoryPoint tp(pp, params.ego_speed, params.ego_acceleration, 0.0, t);
     mcts_param_.ego_traj_points.push_back(tp);
     ego_traj_.AddTrajectoryPoint(tp);
   }
 
   // ----- 构造障碍车（他车）的预测轨迹 -----
-  // 他车从 (50,4) 出发，假设“向右”对应 x 坐标减少，每 0.1 秒以 -15 m/s 移动（即
-  // x 每步减少 1.5 米）
   PredictionObstacle obs;
-  for (int i = 0; i < 5; ++i) {
-    // 先创建并初始化 PathPoint 对象
+  obs.AddTrajectory(Trajectory()); // 初始化第一条轨迹
+  for (int i = 0; i < params.total_points; ++i) {
     PathPoint pp;
-    pp.set_x(50.0 - 15.0 * i * 0.1); // 例如：50, 48.5, 47, 45.5, 44
-    pp.set_y(4.0);                   // y 保持不变
-    pp.set_theta(0.0);               // 假设朝向保持水平
-    pp.set_s(50.0 - 15.0 * i * 0.1); // 简单假设：s 与 x 同值
-    pp.set_kappa(0.0);               // 曲率为 0
+    const double t = i * params.delta_time;  // 当前时间
 
-    // 使用 pp 对象和速度、加速度来构造 TrajectoryPoint 对象
-    TrajectoryPoint tp(pp, -15.0, 0.0, 0.0, i); // 负速 -15.0, 加速度 0.0
-    if (obs.trajectories.empty()) {
-      obs.AddTrajectory(Trajectory());
-    }
-    // 将构造好的轨迹点加入到轨迹中
+    // 计算障碍车轨迹点：x轴匀速运动（可正向或反向，根据传入的 obs_speed）
+    pp.set_x(params.obs_initial_x + params.obs_speed * t);
+    pp.set_y(params.obs_initial_y);  // y 坐标保持不变
+    pp.set_theta(params.obs_initial_theta);
+    pp.set_s(params.obs_initial_s + params.obs_speed * t);
+    pp.set_kappa(params.obs_initial_kappa);
+
+    TrajectoryPoint tp(pp, params.obs_speed, params.obs_acceleration, 0.0, t);
     obs.trajectories[0].mutable_trajectoryPoint().push_back(tp);
   }
   pred_obs_["01"] = obs;
 
-  // // ----- 设置各车辆的决策类型 -----
-  // // 例如：ego 为 EgoSearch（或 EgoPlanning，根据具体测试需求），障碍车为
-  // // ObsSearch（或 ObsPrediction）
-  // mcts_param.decision_type["ego"] = DecisionType::EgoSearch;
-  // mcts_param.decision_type["obs1"] = DecisionType::ObsSearch;
-
-  // ----- 构造候选动作（动作样本）-----
-  // 此处简单设置一个动作样本：对于 ego 和障碍车，动作均为零 jerk 与零 dkappa
+  // ----- 其他参数（例如车辆动作）保持不变 -----
   std::unordered_map<std::string, VehicleAction> action_sample;
   action_sample["ego"] = VehicleAction(0.0, 0.0);
-  action_sample["obs1"] = VehicleAction(0.0, 0.0);
-  // 假设候选动作有多个（这里简单复制两份相同动作）
-  // mcts_param.ego_agent_action.push_back(action_sample);
-  // mcts_param.ego_agent_action.push_back(action_sample);
-
-  // ----- 设置障碍车的目标速度 -----
-  // mcts_param.obs_target_speed["obs1"] = -15.0;
+  action_sample["01"] = VehicleAction(0.0, 0.0);
+  
   return true;
 }
 

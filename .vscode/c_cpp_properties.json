@@ -10,9 +10,9 @@
           "includePath": [
 
               "${workspaceFolder}/**",
-
-              "${workspaceFolder}"
-
+              "${workspaceFolder}",
+              "${workspaceFolder}/behavior_planner",
+              "${workspaceFolder}/conf"
 
           ],
 

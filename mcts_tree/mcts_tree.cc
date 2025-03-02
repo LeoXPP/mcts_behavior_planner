@@ -38,12 +38,12 @@ bool MCTSTree::UctSearch() {
     iter_num++;
     node = Select(); // return a node to expand / a leaf node
     // iter_num = iter;
+    if (!node) {
+      std::cout  << "Error: Select node is nullptr" << "iter_num is" << iter_num; 
+      return false;
+    }
     if (node->iter() > max_node_iter) {
       max_node_iter = node->iter();
-    }
-    if (!node) {
-      std::cout  << "Error: Select node is nullptr";
-      return false;
     }
 
     if (CheckTerminalNode(node)) {
@@ -57,11 +57,11 @@ bool MCTSTree::UctSearch() {
         std::chrono::steady_clock::now() - start_t).count();
 
     // Early stop
-    if (duration > mcts_func_->mcts_param().max_search_time) {
-      std::cout   << "Behavior search " << (iter + 1) << " iters in " << duration
-            << " ms.";
-      break;
-    }
+    // if (duration > mcts_func_->mcts_param().max_search_time) {
+    //   std::cout   << "Behavior search " << (iter + 1) << " iters in " << duration
+    //         << " ms.";
+    //   break;
+    // }
     if (node->visits() / mcts_func_->mcts_param().max_search_iter > 0.5) {
       std::cout   << "Early stopping: Search converged to one node";
       break;

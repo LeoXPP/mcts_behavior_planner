@@ -48,11 +48,16 @@ static bool SolveQuadraticEquationForRealRoots(const float a, const float b, con
 //   return true;
 // }
 inline double get_max_dkappa(double current_velocity) {
-  // 假设最大角速度变化与速度成线性关系
-  double max_dkappa_rate = 0.5; // 最大角速度变化率（可以根据具体情况调整）
-  double max_dkappa = max_dkappa_rate * current_velocity;
-  return max_dkappa;
+  // 基础设计原则：
+  // 1. 最低速度时允许最大角速度变化（0.2 rad/m·s⁻¹)
+  // 2. 速度越高允许的变化率越小
+  double base_max_dk = 0.2;  // 基值 (经验值)
+  double speed_factor = 5.0; // 速度敏感度调节
+
+  // 核心公式：速度越大允许的转向率变化越小
+  return base_max_dk / (1.0 + current_velocity / speed_factor); 
 }
+
 
 bool BehaviorMCTSFunctionBase::JerkModel(const VehicleAction &action, const VehicleState &cur_state,
                                          VehicleState &next_state, const double dt, bool check_valid) {

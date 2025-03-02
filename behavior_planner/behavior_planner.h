@@ -14,6 +14,7 @@
 #include "../vehicle_state/vehicle_state.h"
 #include "../mcts_tree/mcts_tree.h"
 #include "../common/trajectory_point.h"
+#include "test_input.h"
 
 
 namespace apollo {
@@ -28,7 +29,7 @@ public:
 
   bool LoadParams();
 
-  bool ConstructTestInput();
+  bool ConstructTestInput(const TestInputParams& params);
   
   bool MakeDecision();
 

@@ -42,8 +42,8 @@ struct XICAMCTSParam : public MCTSParam {
   XICAIDMParam xica_idm_param;
   double ego_agent_reward_adjust = 1.0;
   bool use_ref_pre_construct = true;
-  bool xica_need_preconstruct = true;
-  bool xica_need_ego_idm = true;
+  bool xica_need_preconstruct = false;
+  bool xica_need_ego_idm = false;
   double occ_bound_max = -1.0;
   double ego_target_speed = 10.0;
   double min_decision_delta_t = 0.5;

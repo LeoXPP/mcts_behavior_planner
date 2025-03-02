@@ -499,11 +499,16 @@ void XICAMCTSFunction::Prepuring(MCTSNode *new_node) {
 }
 
 inline double get_max_dkappa(double current_velocity) {
-  // 假设最大角速度变化与速度成线性关系
-  double max_dkappa_rate = 0.1; // 最大角速度变化率（可以根据具体情况调整）
-  double max_dkappa = max_dkappa_rate * current_velocity;
-  return max_dkappa;
+  // 基础设计原则：
+  // 1. 最低速度时允许最大角速度变化（0.2 rad/m·s⁻¹)
+  // 2. 速度越高允许的变化率越小
+  double base_max_dk = 0.2;  // 基值 (经验值)
+  double speed_factor = 5.0; // 速度敏感度调节
+
+  // 核心公式：速度越大允许的转向率变化越小
+  return base_max_dk / (1.0 + current_velocity / speed_factor); 
 }
+
 
 bool XICAMCTSFunction::EgoSearchIDMModel(const VehicleAction &action,
                                          const VehicleState &cur_state,
@@ -584,7 +589,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
 
   // check kappa
   if (check_valid && std::fabs(new_kappa) > mcts_param_.veh_param.max_kappa) {
-    // // ATRACE << "xiepanpan: new_kappa is out of range" << new_kappa;
+    std::cout << "xiepanpan: new_kappa is out of range" << new_kappa;
     return false;
   }
   next_state.set_kappa(new_kappa);
@@ -597,7 +602,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
 
   // check acc
   if (check_valid && new_acc > mcts_param_.veh_param.max_acc) {
-    // // ATRACE << "xiepanpan: acc is too large" << new_acc;
+    std::cout << "xiepanpan: acc is too large" << new_acc;
     return false;
   }
   if (new_acc < mcts_param_.veh_param.min_acc) {
@@ -606,7 +611,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
     new_jerk = (new_acc - cur_state.acc()) / (dt + kEpsilon);
     // check jerk: last acc is already too large or too small
     if (check_valid && std::fabs(new_jerk) < kEpsilon) {
-      // // ATRACE << "xiepanpan: jerk is too small" << new_jerk;
+      std::cout << "xiepanpan: jerk is too small" << new_jerk;
       return false;
     }
   }
@@ -620,7 +625,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
         (new_acc < -kEpsilon ||
          (std::fabs(new_acc) < kEpsilon && new_jerk < -kEpsilon))) {
       // Already stopped, but sampled a deceleration action
-      // // ATRACE << "xiepanpan: Already stopped, but sampled a deceleration";
+      std::cout << "xiepanpan: Already stopped, but sampled a deceleration";
       return false;
     } else {
       if (SolveQuadraticEquationForRealRoots(
@@ -657,7 +662,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
 
     // check lat acc
     if (check_valid && (lat_acc > mcts_param_.veh_param.max_lat_acc)) {
-      // // ATRACE << "xiepanpan: lat acc is out of range" << lat_acc;
+      std::cout << "xiepanpan: lat acc is out of range" << lat_acc;
       return false;
     }
     ds = cur_state.vel() * dt + 0.5f * cur_state.acc() * dt_sq +
@@ -669,8 +674,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
   vehicle_state_detail.new_vel = new_vel;
   // check vel
   if (check_valid && new_vel > mcts_param_.veh_param.max_vel) {
-    // // ATRACE << "xiepanpan: vel is out of range" << new_vel << "  ,  and the
-    // max vel is: " << mcts_param_.veh_param.max_vel;
+    std::cout << "xiepanpan: vel is out of range" << new_vel << ",  and the max vel is:"<< mcts_param_.veh_param.max_vel;
     return false;
   }
   next_state.set_vel(new_vel);
@@ -726,13 +730,6 @@ bool XICAMCTSFunction::BoundaryCheck(MCTSNode *node,
       // wrt+e down the dis and lateral value
       VehicleStateDetails &cur_state = node->vehicle_states[id];
 
-      // if (mcts_param_.obs_refline_info.find(id) ==
-      //     mcts_param_.obs_refline_info.end()) {
-      //   // // AERROR << "xiepanpan No refline info found for obstacle: " << id;
-      //   return false;
-      // }
-      // const auto &ref_line_info = mcts_param_.obs_refline_info.at(id);
-      // const auto &ref_line = ref_line_info->reference_line_ptr();
       double accumulate_s = 0.0;
       double lateral = 0.0;
       common::math::Vec2d obs_point(next_state.x(), next_state.y());
@@ -781,17 +778,18 @@ bool XICAMCTSFunction::BoundaryCheck(MCTSNode *node,
         return false;
       }
 
+      double road_left_bound = 6.0;
+      double road_right_bound = -2.0;
       // xiepanpan: warning
       if (true) {
         common::math::Vec2d xy_helper(next_state.x(), next_state.y());
-        if (next_state.y() > mcts_param_.occ_bound_max) {
-          // // ATRACE << "xiepanpan: boundary check(use predicted traj
-          // preconstruct) occ failed dis: " << dis;
+        if (next_state.y() > road_left_bound || next_state.y() < road_right_bound) {
+          std::cout << "xiepanpan: boundary check(use predicted traj preconstruct occ failed dis: " << next_state.y() ;
           return false;
         }
 
       } else {
-        // AERROR << "World view is nullptr.";
+        std::cout << "World view is nullptr.";
       }
     }
   }

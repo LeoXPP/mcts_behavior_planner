@@ -4,7 +4,7 @@
     "name": "(gdb) 管道启动",
     "type": "cppdbg",
     "request": "launch",
-    "program": "/home/xie/XPP_ARTICLE_CODE/article_code/out/build/GCC 11.4.0 x86_64-linux-gnu/VehicleExecutable",
+    "program": "${workspaceRoot}/out/VehicleExecutable",
     "args": [],
     "stopAtEntry": false,
     "cwd": "${fileDirname}",

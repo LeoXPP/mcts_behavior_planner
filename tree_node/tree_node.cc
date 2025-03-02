@@ -20,7 +20,7 @@ MCTSNode *MCTSNode::SelectBestChild(double c) const {
   else if (children_.size() == 1)
     return children_.at(0);
   else {
-    double uct = -100.0, max = -100.0;
+    double uct = -100000000000.0, max = -10000000000000.0;
     MCTSNode *argmax = nullptr;
     for (MCTSNode *child : children_) {
       double child_score = child->reward_;
