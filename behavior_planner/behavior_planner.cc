@@ -51,6 +51,9 @@ bool Planner::MakeDecision() {
 
 bool Planner::InterpolateResult(bool need_extend) {
   // Only for decision obstacles
+  if (!mcts_tree_->SearchBestNodeSeq()) {
+    return false;
+  }
   mcts_tree_->SaveTreeVisualization("xiepanpan_mcst_tree.json", 1);
 
   return true;
@@ -207,8 +210,8 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
     decision_type_["ego"] = DecisionType::EgoIDM;
     // std::cout << "xiepanpan: EgoIDM";
   } else {
-    // decision_type_["ego"] = DecisionType::EgoSearch;
-    decision_type_["ego"] = DecisionType::EgoPlanning;
+    decision_type_["ego"] = DecisionType::EgoSearch;
+    //decision_type_["ego"] = DecisionType::EgoPlanning;
     // std::cout << "xiepanpan: EgoSearch";
   }
 
@@ -235,8 +238,10 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
         VehicleAction(0, ego_lat_action_set[i]));
   }
 
-  std::vector<double> jerk_action{-2.0, -1.0, 0.0};
-  std::vector<double> dkappa_action{-1.0, -0.75, -0.5, -0.25, 0, 0.25};
+  std::vector<double> jerk_action{-2.0, -1.0, 0.0, 1.0};
+  std::vector<double> dkappa_action{ -0.75, -0.25, 0, 0.1};
+  // std::vector<double> jerk_action{-2.0, -1.0, 0.0};
+  // std::vector<double> dkappa_action{-1.0, -0.75, -0.5, -0.25, 0, 0.25};
 
   for (size_t i = 0; i < jerk_action.size(); ++i) {
     for (size_t j = 0; j < dkappa_action.size(); ++j) {
@@ -344,7 +349,7 @@ bool Planner::LoadParams() {
   mcts_dynamics.max_ddkappa_ = 100.0;
   mcts_dynamics.max_jerk_ = 4.0;
   mcts_dynamics.max_kappa_ = 0.2;
-  mcts_dynamics.max_lat_acc_ = 3.0;
+  mcts_dynamics.max_lat_acc_ = 4.0 * 2;
   mcts_dynamics.max_v_ = 30.0;
 
   // 2. 车辆参数

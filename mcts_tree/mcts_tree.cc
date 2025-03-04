@@ -39,7 +39,8 @@ bool MCTSTree::UctSearch() {
     node = Select(); // return a node to expand / a leaf node
     // iter_num = iter;
     if (!node) {
-      std::cout  << "Error: Select node is nullptr" << "iter_num is" << iter_num; 
+      std::cout << "Error: Select node is nullptr"
+                << "iter_num is" << iter_num;
       return false;
     }
     if (node->iter() > max_node_iter) {
@@ -54,16 +55,18 @@ bool MCTSTree::UctSearch() {
     }
 
     duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-        std::chrono::steady_clock::now() - start_t).count();
+                   std::chrono::steady_clock::now() - start_t)
+                   .count();
 
     // Early stop
     // if (duration > mcts_func_->mcts_param().max_search_time) {
-    //   std::cout   << "Behavior search " << (iter + 1) << " iters in " << duration
+    //   std::cout   << "Behavior search " << (iter + 1) << " iters in " <<
+    //   duration
     //         << " ms.";
     //   break;
     // }
     if (node->visits() / mcts_func_->mcts_param().max_search_iter > 0.5) {
-      std::cout   << "Early stopping: Search converged to one node";
+      std::cout << "Early stopping: Search converged to one node";
       break;
     }
     // if (iter > 1000 && iter / size_ > 2.0) {
@@ -71,14 +74,15 @@ bool MCTSTree::UctSearch() {
     //   break;
     // }
   }
-  std::cout   << "xiepanpan: iter_num is" << iter_num;
+  std::cout << "xiepanpan: iter_num is" << iter_num;
   if (root_->size() == 0) {
-    std::cout   << "No valid action found";
+    std::cout << "No valid action found";
     return false;
   }
   if (valid_size_ < mcts_func_->mcts_param().min_valid_node_num) {
-    // std::cout   << "xiepanpan: max_node_iter in all node is: " << max_node_iter;
-    // std::cout   << "xiepanpan: Unreasonable valid node size: " << valid_size_;
+    // std::cout   << "xiepanpan: max_node_iter in all node is: " <<
+    // max_node_iter; std::cout   << "xiepanpan: Unreasonable valid node size: "
+    // << valid_size_;
     return false;
   }
   return true;
@@ -124,7 +128,7 @@ void MCTSTree::Backpropagate(MCTSNode *node, int number_of_threads) {
 
 MCTSNode *MCTSTree::Expand(MCTSNode *node) {
   if (node->IsFullyExpanded()) {
-    std::cout  << "Warning: Cannot expand this node any more!";
+    std::cout << "Warning: Cannot expand this node any more!";
     return nullptr;
   }
   MCTSNode *new_node = tree_node_pool_->GetTreeNode();
@@ -172,10 +176,13 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
   try {
     nlohmann::json j;
     j["nodes"] = nlohmann::json::array();
+    j["bestnodeseq"] = best_node_seq_info_; // 新增字段保存最优节点信息
+
     if (!root_) {
-      std::cout   << "Root is null. Cannot save visualization.";
+      std::cout << "Root is null. Cannot save visualization.";
       return false;
     }
+
     // BFS traversal
     std::queue<std::pair<MCTSNode *, int>> q;
     q.push({root_, 0});
@@ -185,7 +192,7 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
       q.pop();
 
       if (node == nullptr) {
-        std::cout   << "Encountered null node at depth: " << depth;
+        std::cout << "Encountered null node at depth: " << depth;
         continue;
       }
 
@@ -237,9 +244,10 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
           node_json["vehicle_rewards"] = vehicle_reward_json;
         } else {
           node_json["vehicle_rewards"] = nlohmann::json::object();
-          std::cout   << "No reward details found for vehicle_id: " << vehicle_id
-                << " in node_id: " << node->id();
+          std::cout << "No reward details found for vehicle_id: " << vehicle_id
+                    << " in node_id: " << node->id();
         }
+
         auto is_state = node->vehicle_states.find(vehicle_id);
         if (is_state != node->vehicle_states.end()) {
           const VehicleStateDetails &state_details = is_state->second;
@@ -255,8 +263,8 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
           node_json["vehicle_states"] = vehicle_state_json;
         } else {
           node_json["vehicle_states"] = nlohmann::json::object();
-          std::cout   << "No state details found for vehicle_id: " << vehicle_id <<
-          " in node_id: " << node->id();
+          std::cout << "No state details found for vehicle_id: " << vehicle_id
+                    << " in node_id: " << node->id();
         }
 
         node_json["visits"] = node->visits();
@@ -269,12 +277,11 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
         j["nodes"].push_back(node_json);
       }
 
-      // in case nullptr
       for (auto child : node->children()) {
         if (child != nullptr) {
           q.push({child, depth + 1});
         } else {
-          std::cout   << "Encountered null child of node_id: " << node->id();
+          std::cout << "Encountered null child of node_id: " << node->id();
         }
       }
     }
@@ -289,60 +296,94 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
     filename += "_" + seq_num_str + "_" + timestamp + ".json";
     std::ofstream ofs(filename);
     if (!ofs.is_open()) {
-      std::cout   << "Failed to open file: " << filename;
+      std::cout << "Failed to open file: " << filename;
       return false;
     }
     ofs << j.dump(4);
     ofs.close();
-    std::cout   << "MCTS tree visualization saved to " << filename;
+    std::cout << "MCTS tree visualization saved to " << filename;
     return true;
   } catch (const std::exception &e) {
-    std::cout   << "Exception during SaveTreeVisualization: " << e.what();
+    std::cout << "Exception during SaveTreeVisualization: " << e.what();
     return false;
   }
-}
-
-bool MCTSTree::SearchBestStateSeq() {
-  best_state_seq_.clear();
-  MCTSNode *cur_node = root_;
-  while (cur_node && !CheckTerminalNode(cur_node)) {
-    best_state_seq_.push_back(cur_node->state());
-    cur_node = cur_node->SelectBestChild(0.0);
-    cur_node->set_optimal(true);
-    if (!cur_node->is_valid()) {
-      std::cout   << "Invalid node found in best action sequence";
-      return false;
-    }
-  }
-  if (cur_node) {
-    best_state_seq_.push_back(cur_node->state());
-  }
-  int result_size = best_node_seq_.size();
-  if (result_size < mcts_func_->mcts_param().max_iter) {
-    std::cout   << "No valid action sequence found";
-    return false;
-  }
-  return true;
 }
 
 bool MCTSTree::SearchBestNodeSeq() {
   best_node_seq_.clear();
+  best_node_seq_info_.clear(); // 新增一行清空最优节点信息列表
   MCTSNode *cur_node = root_;
   while (cur_node && !CheckTerminalNode(cur_node)) {
     best_node_seq_.push_back(cur_node);
+
+    // 保存节点中的自车和他车的状态信息，以及奖励相关的信息
+    nlohmann::json node_info;
+    for (const auto &state_pair : cur_node->state()) {
+      const std::string &vehicle_id = state_pair.first;
+      const VehicleState &state = state_pair.second;
+
+      nlohmann::json vehicle_state_info;
+      vehicle_state_info["vehicle_id"] = vehicle_id;
+      vehicle_state_info["x"] = state.x();
+      vehicle_state_info["y"] = state.y();
+      vehicle_state_info["s"] = state.s();
+      vehicle_state_info["l"] = state.l();
+      vehicle_state_info["theta"] = state.theta();
+      vehicle_state_info["vel"] = state.vel();
+      vehicle_state_info["acc"] = state.acc();
+      vehicle_state_info["kappa"] = state.kappa();
+
+      node_info["vehicle_states"].push_back(vehicle_state_info);
+    }
+
+    // 奖励信息
+    node_info["reward"] = cur_node->reward();
+    node_info["iter"] = cur_node->iter();
+    node_info["id"] = cur_node->id();
+
+    // 保存每个节点的相关信息
+    best_node_seq_info_.push_back(node_info);
+
     cur_node = cur_node->SelectBestChild(0.0);
     cur_node->set_optimal(true);
+
     if (!cur_node->is_valid()) {
-      std::cout   << "Invalid node found in best action sequence";
+      std::cout << "Invalid node found in best action sequence";
       return false;
     }
   }
+
   if (cur_node) {
     best_node_seq_.push_back(cur_node);
+    // 处理最后一个节点的相关信息
+    nlohmann::json node_info;
+    for (const auto &state_pair : cur_node->state()) {
+      const std::string &vehicle_id = state_pair.first;
+      const VehicleState &state = state_pair.second;
+
+      nlohmann::json vehicle_state_info;
+      vehicle_state_info["vehicle_id"] = vehicle_id;
+      vehicle_state_info["x"] = state.x();
+      vehicle_state_info["y"] = state.y();
+      vehicle_state_info["s"] = state.s();
+      vehicle_state_info["l"] = state.l();
+      vehicle_state_info["theta"] = state.theta();
+      vehicle_state_info["vel"] = state.vel();
+      vehicle_state_info["acc"] = state.acc();
+      vehicle_state_info["kappa"] = state.kappa();
+
+      node_info["vehicle_states"].push_back(vehicle_state_info);
+    }
+
+    node_info["reward"] = cur_node->reward();
+    node_info["iter"] = cur_node->iter();
+    node_info["id"] = cur_node->id();
+    best_node_seq_info_.push_back(node_info);
   }
+
   int result_size = best_node_seq_.size();
   if (result_size < mcts_func_->mcts_param().max_iter) {
-    std::cout   << "No valid action sequence found";
+    std::cout << "No valid action sequence found";
     return false;
   }
   return true;
@@ -350,7 +391,7 @@ bool MCTSTree::SearchBestNodeSeq() {
 
 void MCTSTree::DebugString() const {
   // std::cout   << "Tree size: " << size();
-  std::cout   << "Valid node size: " << valid_size_;
+  std::cout << "Valid node size: " << valid_size_;
   root_->DebugString();
 }
 

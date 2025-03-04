@@ -71,6 +71,7 @@ private:
   MCTSNode *root_;
   std::vector<std::unordered_map<std::string, VehicleState>> best_state_seq_;
   std::vector<MCTSNode *> best_node_seq_;
+  std::vector<nlohmann::json> best_node_seq_info_;  
   BehaviorMCTSFunctionBase *mcts_func_ = nullptr;
   TreeNodePoolPtr tree_node_pool_ = nullptr;
   int size_ = 1;

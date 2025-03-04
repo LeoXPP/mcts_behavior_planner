@@ -51,12 +51,17 @@ inline double get_max_dkappa(double current_velocity) {
   // 基础设计原则：
   // 1. 最低速度时允许最大角速度变化（0.2 rad/m·s⁻¹)
   // 2. 速度越高允许的变化率越小
-  double base_max_dk = 0.2;  // 基值 (经验值)
-  double speed_factor = 5.0; // 速度敏感度调节
+
+  double baseMaxAngularAcceleration = 0.2;  // 基值 (经验值)
+  double velocitySensitivityFactor = 5.0;   // 速度敏感度调节
+
+  // 使用绝对值来处理速度
+  double absolute_velocity = std::abs(current_velocity);
 
   // 核心公式：速度越大允许的转向率变化越小
-  return base_max_dk / (1.0 + current_velocity / speed_factor); 
+  return baseMaxAngularAcceleration / (1.0 + absolute_velocity / velocitySensitivityFactor);
 }
+
 
 
 bool BehaviorMCTSFunctionBase::JerkModel(const VehicleAction &action, const VehicleState &cur_state,

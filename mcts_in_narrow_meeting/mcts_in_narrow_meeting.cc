@@ -77,7 +77,7 @@ bool XICAMCTSFunction::ExpandNode(MCTSNode *node, MCTSNode *new_node) {
     return true;
   }
   if (node->IsFullyExpanded() && node->size() == 0) {
-    node->set_reward(-999.0);
+    node->set_reward(1);
     node->set_valid(false);
   }
   return false;
@@ -122,44 +122,34 @@ bool XICAMCTSFunction::StateChange(
   auto &cur_state = node->state();
   auto &next_state = new_node->get_state();
   node->vehicle_states.clear();
+  bool is_ego_action_chosen = true;
+  bool is_obs_action_chosen = true;
   for (auto &[id, decision_type] : mcts_param_.decision_type) {
     if (next_state.find(id) == next_state.end()) {
       // AERROR << "Vehicle state not found, id: " << id;
       return false;
     }
-    // Search
+
     if (decision_type == DecisionType::EgoSearch ||
         decision_type == DecisionType::ObsSearch) {
-      bool is_action_chosen = false;
+
       if (action.find(id) == action.end()) {
-        // AERROR << "Action not found, id: " << id;
+        std::cout << "Action not found, id: " << id;
         return false;
       }
-      if (mcts_param_.decision_type.at("ego") == DecisionType::EgoSearch) {
-        // ATRACE << "xiepanpan: Begin to EgoSearch.";
-        const VehicleState *leader_state = nullptr;
-        if (!GetLeaderState(cur_state, id, leader_state)) {
-          // AERROR << "xiepanpan: GetLeaderState failed";
-          return false;
-        }
-        // if(node->iter() == 0){IDM or IMD+dkappa}
-        is_action_chosen = EgoSearchIDMModel(
-            action.at(id), cur_state.at(id), next_state.at(id),
-            mcts_param_.time_step[node->iter()], leader_state);
-        //  BoundaryCheck(node, next_state.at(id), id);
+
+      bool action_chosen =
+          XICAJerkModel(node, id, action.at(id), cur_state.at(id),
+                        next_state.at(id), mcts_param_.time_step[node->iter()],
+                        true) &&
+          BoundaryCheck(node, next_state.at(id), id);
+
+      if (decision_type == DecisionType::EgoSearch) {
+        is_ego_action_chosen = action_chosen;
       } else {
-        is_action_chosen =
-            XICAJerkModel(node, id, action.at(id), cur_state.at(id),
-                          next_state.at(id),
-                          mcts_param_.time_step[node->iter()], true) &&
-            BoundaryCheck(node, next_state.at(id), id);
+        is_obs_action_chosen = action_chosen;
       }
-      if (!is_action_chosen) {
-        return false;
-      }
-    }
-    // Ego planning
-    else if (decision_type == DecisionType::EgoPlanning) {
+    } else if (decision_type == DecisionType::EgoPlanning) {
       int ego_traj_idx =
           std::min(node->iter() + 1,
                    static_cast<int>(mcts_param_.ego_traj_points.size() - 1));
@@ -171,9 +161,7 @@ bool XICAMCTSFunction::StateChange(
       next_state.at(id).set_vel(ego_traj.v());
       next_state.at(id).set_acc(ego_traj.a());
       next_state.at(id).set_kappa(ego_traj.path_point().kappa());
-    }
-    // Ego planning with IDM
-    else if (decision_type == DecisionType::EgoIDM) {
+    } else if (decision_type == DecisionType::EgoIDM) {
       const VehicleState *leader_state = nullptr;
       if (!GetLeaderState(cur_state, id, leader_state)) {
         // AERROR << "xiepanpan: GetLeaderState failed";
@@ -184,9 +172,7 @@ bool XICAMCTSFunction::StateChange(
         // AERROR << "xiepanpan: XICAIDMModel failed";
         return false;
       }
-    }
-    // Obs Prediction
-    else if (decision_type == DecisionType::ObsPrediction) {
+    } else if (decision_type == DecisionType::ObsPrediction) {
       int point_idx = static_cast<int>(
           (node->relative_time() + mcts_param_.time_step[node->iter()]) * 10);
       point_idx =
@@ -207,6 +193,17 @@ bool XICAMCTSFunction::StateChange(
       next_state.at(id).set_kappa(obs_traj.path_point().kappa());
     }
   }
+
+  // Return false if either is_obs_action_chosen or is_ego_action_chosen is
+  // false
+  if (!is_obs_action_chosen || !is_ego_action_chosen) {
+    return false;
+  }
+  double target_x = next_state.at("01").x();
+  if(std::isnan(target_x)){
+    std::cout << "xiepanpan: target_x is nan";
+    return false;
+  }
   InitNode(node, action, new_node);
   return true;
 }
@@ -214,41 +211,7 @@ bool XICAMCTSFunction::StateChange(
 bool XICAMCTSFunction::GetLeaderState(
     const std::unordered_map<std::string, VehicleState> &cur_state,
     const std::string &id, const VehicleState *&leader_state) {
-  double min_longitudinal_dist =
-      100.0; // Initialize with a max threshold distance
-  // std::string leader_id = "";
-
-  // // Find the leader vehicle
-  // for (auto &[id_, decision_type] : mcts_param_.decision_type) {
-  //   if (decision_type == DecisionType::ObsSearch) {
-  //     auto it = cur_state.find(id_);
-  //     if (it == cur_state.end()) {
-  //       // // AERROR << "xiepanpan not found id_ when find nearest agent: " <<
-  //       // id_;
-  //       return false;
-  //     }
-  //     const VehicleState &candidate_state = it->second;
-  //     const VehicleState &ego_state = cur_state.at(id);
-  //     apollo::common::math::Vec2d ego_xy(ego_state.x(), ego_state.y());
-  //     apollo::common::SLPoint candidate_sl_point;
-  //     if (mcts_param_.obs_path_frenet.find(id_) ==
-  //         mcts_param_.obs_path_frenet.end()) {
-  //       // // AERROR << "xiepanpan: not found ego id when  ind the leader
-  //       // vehicle" << id;
-  //       return false;
-  //     }
-  //     mcts_param_.obs_path_frenet.at(id_).XYToSL(ego_xy, &candidate_sl_point);
-
-  //     double longitudinal_dist = std::fabs(candidate_sl_point.s());
-  //     double lateral_dist = std::fabs(candidate_sl_point.l());
-
-  //     if (lateral_dist < 2.0 && longitudinal_dist < min_longitudinal_dist) {
-  //       min_longitudinal_dist = longitudinal_dist;
-  //       leader_state = &candidate_state;
-  //       // leader_id = id_;
-  //     }
-  //   }
-  // }
+  double min_longitudinal_dist = 100.0;
   // No suitable leader was found within 100m and lateral distance of 2m
   if (!leader_state || min_longitudinal_dist > 100.0) {
     // todo: Fallback to default leader
@@ -369,14 +332,6 @@ void XICAMCTSFunction::PreConstructTree(MCTSNode *root, bool is_pre_construct) {
     } else {
       // Project obstacle_prediction onto reference line
       for (auto &[id, obstacle] : mcts_param_.pred_obs) {
-        // if (mcts_param_.obs_refline_info.find(id) ==
-        //     mcts_param_.obs_refline_info.end()) {
-        //   // AERROR << "xiepanpan No refline info found for obstacle: " << id;
-        //   continue;
-        // }
-        // const auto &ref_line_info = mcts_param_.obs_refline_info.at(id);
-        // const auto &ref_line = ref_line_info->reference_line_ptr();
-
         int point_idx = static_cast<int>(
             (node->relative_time() + mcts_param_.time_step[node->iter()]) * 10);
         point_idx = std::min(
@@ -385,12 +340,9 @@ void XICAMCTSFunction::PreConstructTree(MCTSNode *root, bool is_pre_construct) {
                 obstacle.trajectory()[0].trajectory_point().size() - 1));
         auto &obs_traj = obstacle.trajectory()[0].trajectory_point()[point_idx];
 
-        double accumulate_s = 0.0;
-        double lateral = 0.0;
         common::math::Vec2d obs_point(obs_traj.path_point().x(),
                                       obs_traj.path_point().y());
-        selected_action[id] =
-        VehicleAction(0, 0);
+        selected_action[id] = VehicleAction(0, 0);
       }
       // // ATRACE << "xiepanpan: Pre-constructed refline";
     }
@@ -464,7 +416,7 @@ void XICAMCTSFunction::Prepuring(MCTSNode *new_node) {
             mcts_param_.long_expand_factor * mcts_param_.veh_param.length,
             mcts_param_.lat_expand_factor * mcts_param_.veh_param.width);
         if (ego_box.HasOverlap(obs_box)) {
-          new_node->set_reward(-101.0);
+          new_node->set_reward(1);
           new_node->set_valid(false);
           // // ATRACE << "xiepanpan: Ego collide with obstacle." << "the
           // obstacle id is:" <<id;
@@ -483,7 +435,7 @@ void XICAMCTSFunction::Prepuring(MCTSNode *new_node) {
                 1.2 * mcts_param_.veh_param.length,
                 1.2 * mcts_param_.veh_param.width);
             if (obs_box.HasOverlap(cipv_box)) {
-              new_node->set_reward(-101.0);
+              new_node->set_reward(1);
               new_node->set_valid(false);
               // // ATRACE << "xiepanpan: cipv_box Collision.";
               return;
@@ -498,17 +450,22 @@ void XICAMCTSFunction::Prepuring(MCTSNode *new_node) {
   return;
 }
 
+#include <cmath> // 包含cmath头文件以使用std::abs函数
+
 inline double get_max_dkappa(double current_velocity) {
   // 基础设计原则：
   // 1. 最低速度时允许最大角速度变化（0.2 rad/m·s⁻¹)
   // 2. 速度越高允许的变化率越小
-  double base_max_dk = 0.2;  // 基值 (经验值)
-  double speed_factor = 5.0; // 速度敏感度调节
+
+  double baseMaxAngularAcceleration = 0.2;  // 基值 (经验值)
+  double velocitySensitivityFactor = 5.0;   // 速度敏感度调节
+
+  // 使用绝对值来处理速度
+  double absolute_velocity = std::abs(current_velocity);
 
   // 核心公式：速度越大允许的转向率变化越小
-  return base_max_dk / (1.0 + current_velocity / speed_factor); 
+  return baseMaxAngularAcceleration / (1.0 + absolute_velocity / velocitySensitivityFactor);
 }
-
 
 bool XICAMCTSFunction::EgoSearchIDMModel(const VehicleAction &action,
                                          const VehicleState &cur_state,
@@ -577,11 +534,15 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
   // Bicycle jerk model
   double dt_sq = dt * dt;
 
+  if (node->visits() == 0) {
+    std::cout << "xiepanpan: visits is 0";
+  }
+
   // write_down node msg
   VehicleStateDetails &vehicle_state_detail = node->vehicle_states[id];
 
   // dkappa
-  double new_dkappa = action.dkappa() * get_max_dkappa(cur_state.vel());
+  double new_dkappa = action.dkappa() * get_max_dkappa(cur_state.vel()) * 0.1;
 
   // kappa_1 = kappa_0 + dkappa * dt
   double new_kappa = cur_state.kappa() + new_dkappa * dt;
@@ -674,7 +635,8 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
   vehicle_state_detail.new_vel = new_vel;
   // check vel
   if (check_valid && new_vel > mcts_param_.veh_param.max_vel) {
-    std::cout << "xiepanpan: vel is out of range" << new_vel << ",  and the max vel is:"<< mcts_param_.veh_param.max_vel;
+    std::cout << "xiepanpan: vel is out of range" << new_vel
+              << ",  and the max vel is:" << mcts_param_.veh_param.max_vel;
     return false;
   }
   next_state.set_vel(new_vel);
@@ -689,6 +651,10 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
   // x_1 = x_0 + s * cos(theta_mid); y_1 = y_0 + s * sin(theta_mid)
   next_state.set_x(cur_state.x() + std::cos(mid_theta) * ds);
   next_state.set_y(cur_state.y() + std::sin(mid_theta) * ds);
+  if (next_state.x() == NAN || next_state.y() == NAN) {
+    std::cout << "xiepanpan: NAN value in x or y";
+  }
+
   return true;
 }
 
@@ -696,6 +662,12 @@ bool XICAMCTSFunction::BoundaryCheck(MCTSNode *node,
                                      const VehicleState &next_state,
                                      const std::string &id) {
   // Left turn range check
+  if (id == "ego") {
+    return true;
+  } else {
+    int traj_point_num =
+        mcts_param_.pred_obs.at(id).trajectory()[0].trajectory_point().size();
+  }
   int traj_point_num =
       mcts_param_.pred_obs.at(id).trajectory()[0].trajectory_point().size();
   if (obs_type_ == ObstacleType::OppoLeftTurn) {
@@ -783,8 +755,10 @@ bool XICAMCTSFunction::BoundaryCheck(MCTSNode *node,
       // xiepanpan: warning
       if (true) {
         common::math::Vec2d xy_helper(next_state.x(), next_state.y());
-        if (next_state.y() > road_left_bound || next_state.y() < road_right_bound) {
-          std::cout << "xiepanpan: boundary check(use predicted traj preconstruct occ failed dis: " << next_state.y() ;
+        if (next_state.y() > road_left_bound ||
+            next_state.y() < road_right_bound) {
+          std::cout << "xiepanpan: boundary check failed dis: "
+                    << next_state.y();
           return false;
         }
 
@@ -991,7 +965,8 @@ XICAMCTSFunction::XICAPredictionReward(const VehicleState &veh_state,
   constexpr double DIST_THRESHOLD_MAX = 4.0; // Distance >= 4.0m => Reward = 0.0
 
   // Check if the prediction obstacle has a valid trajectory
-  if (pred_obs.trajectory().empty() || pred_obs.trajectory(0).points.size() == 0) {
+  if (pred_obs.trajectory().empty() ||
+      pred_obs.trajectory(0).points.size() == 0) {
     return 0.0;
   }
 
@@ -1182,9 +1157,10 @@ double XICAMCTSFunction::ActionConsistencyReward_(
   return std::exp(-gamma * distance_squared);
 }
 
-double XICAMCTSFunction::StateConsistencyReward(
-    const VehicleState &cur_state, const double cur_t,
-    const PredictionObstacle &pred_obs) {
+double
+XICAMCTSFunction::StateConsistencyReward(const VehicleState &cur_state,
+                                         const double cur_t,
+                                         const PredictionObstacle &pred_obs) {
   // double max_d_theta = mcts_param_.xica_max_d_theta;
   double max_d_theta = 0.8;
 
@@ -1220,11 +1196,12 @@ double XICAMCTSFunction::TargetSpeedRward(const VehicleState &veh_state,
     // AERROR << "Target speed of obstacle is not set.";
     target_speed = mcts_param_.veh_param.max_vel;
   }
-  target_speed = mcts_param_.obs_target_speed.at(id);
+  // target_speed =  std::abs(mcts_param_.obs_target_speed.at(id));
+  target_speed = 10;
   if (target_speed == 0) {
     target_speed = 1e-5; // avoid divide by zero
   }
-  return std::min(veh_state.vel(), target_speed) / target_speed;
+  return std::min(std::abs(veh_state.vel()), target_speed) / target_speed;
 }
 
 double XICAMCTSFunction::AccReward(const VehicleState &veh_state,
@@ -1263,6 +1240,7 @@ double XICAMCTSFunction::XICAEfficiencyReward(const VehicleState &veh_state,
     target_speed = it->second;
   }
   double current_speed = veh_state.vel();
+  target_speed = 10;
   if (target_speed == 0) {
     target_speed = 1e-5;
   }
