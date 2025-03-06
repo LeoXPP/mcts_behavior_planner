@@ -15,7 +15,7 @@ struct TestInputParams {
 
   // 障碍车（他车）的参数
   double obs_initial_x = 50.0; // 初始x坐标
-  double obs_initial_y = 4.0;  // 初始y坐标
+  double obs_initial_y = 0.0;  // 初始y坐标
   double obs_speed = -7.0; // 障碍车速度（m/s），负值表示沿x轴反向运动
   double obs_acceleration = 0.0;  // 障碍车加速度（m/s²）
   double obs_initial_theta = 0.0; // 初始航向角（弧度）
