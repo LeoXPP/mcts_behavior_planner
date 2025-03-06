@@ -200,7 +200,7 @@ bool XICAMCTSFunction::StateChange(
     return false;
   }
   double target_x = next_state.at("01").x();
-  if(std::isnan(target_x)){
+  if (std::isnan(target_x)) {
     std::cout << "xiepanpan: target_x is nan";
     return false;
   }
@@ -457,14 +457,15 @@ inline double get_max_dkappa(double current_velocity) {
   // 1. 最低速度时允许最大角速度变化（0.2 rad/m·s⁻¹)
   // 2. 速度越高允许的变化率越小
 
-  double baseMaxAngularAcceleration = 0.2;  // 基值 (经验值)
-  double velocitySensitivityFactor = 5.0;   // 速度敏感度调节
+  double baseMaxAngularAcceleration = 0.2; // 基值 (经验值)
+  double velocitySensitivityFactor = 5.0;  // 速度敏感度调节
 
   // 使用绝对值来处理速度
   double absolute_velocity = std::abs(current_velocity);
 
   // 核心公式：速度越大允许的转向率变化越小
-  return baseMaxAngularAcceleration / (1.0 + absolute_velocity / velocitySensitivityFactor);
+  return baseMaxAngularAcceleration /
+         (1.0 + absolute_velocity / velocitySensitivityFactor);
 }
 
 bool XICAMCTSFunction::EgoSearchIDMModel(const VehicleAction &action,
@@ -534,10 +535,6 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
   // Bicycle jerk model
   double dt_sq = dt * dt;
 
-  if (node->visits() == 0) {
-    std::cout << "xiepanpan: visits is 0";
-  }
-
   // write_down node msg
   VehicleStateDetails &vehicle_state_detail = node->vehicle_states[id];
 
@@ -572,7 +569,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
     new_jerk = (new_acc - cur_state.acc()) / (dt + kEpsilon);
     // check jerk: last acc is already too large or too small
     if (check_valid && std::fabs(new_jerk) < kEpsilon) {
-      std::cout << "xiepanpan: jerk is too small" << new_jerk;
+      // std::cout << "xiepanpan: jerk is too small" << new_jerk;
       return false;
     }
   }
@@ -623,7 +620,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
 
     // check lat acc
     if (check_valid && (lat_acc > mcts_param_.veh_param.max_lat_acc)) {
-      std::cout << "xiepanpan: lat acc is out of range" << lat_acc;
+      // std::cout << "xiepanpan: lat acc is out of range" << lat_acc;
       return false;
     }
     ds = cur_state.vel() * dt + 0.5f * cur_state.acc() * dt_sq +
@@ -757,8 +754,8 @@ bool XICAMCTSFunction::BoundaryCheck(MCTSNode *node,
         common::math::Vec2d xy_helper(next_state.x(), next_state.y());
         if (next_state.y() > road_left_bound ||
             next_state.y() < road_right_bound) {
-          std::cout << "xiepanpan: boundary check failed dis: "
-                    << next_state.y();
+          // std::cout << "xiepanpan: boundary check failed dis: "
+          //           << next_state.y();
           return false;
         }
 
@@ -802,7 +799,7 @@ double XICAMCTSFunction::RewardFun(MCTSNode *node) {
 
       reward_details.occupancy_reward +=
           other_w * mcts_param_.xica_reward_info.xica_w_occ *
-          OccReward(cur_state.at(id));
+          OccReward(cur_state.at(id), id);
 
       if (node->iter() >= 2) {
         reward_details.history_consistency_reward +=
@@ -872,7 +869,7 @@ double XICAMCTSFunction::RewardFun(MCTSNode *node) {
                                       XICASafetyReward(cur_state);
       reward_details.occupancy_reward +=
           other_w * mcts_param_.xica_reward_info.xica_w_occ *
-          OccReward(cur_state.at(id));
+          OccReward(cur_state.at(id), id);
       reward_details.refline_reward +=
           other_w * mcts_param_.xica_reward_info.xica_w_refline *
           XICAReflineReward(cur_state, id);
@@ -909,17 +906,6 @@ double XICAMCTSFunction::XICASafetyReward(
 
   const VehicleState &ego_state = cur_state.at("ego");
   apollo::common::math::Vec2d ego_xy(ego_state.x(), ego_state.y());
-  apollo::common::SLPoint ego_sl_point;
-
-  // if (mcts_param_.obs_path_frenet.find("ego") ==
-  //     mcts_param_.obs_path_frenet.end()) {
-  //   // AERROR << "No ego trajectory found in obs_path_frenet.";
-  //   return -888;
-  // }
-
-  // mcts_param_.obs_path_frenet.at("ego").XYToSL(ego_xy, &ego_sl_point);
-  double longitudinal_dist_ego = ego_sl_point.s();
-  double lateral_dist_ego = ego_sl_point.l();
 
   for (const auto &[id, agent_state] : cur_state) {
     if (id == "ego" ||
@@ -928,21 +914,21 @@ double XICAMCTSFunction::XICASafetyReward(
     }
 
     apollo::common::math::Vec2d agent_xy(agent_state.x(), agent_state.y());
-    apollo::common::SLPoint agent_sl_point;
-    // mcts_param_.obs_path_frenet.at("ego").XYToSL(agent_xy, &agent_sl_point);
 
-    double lateral_distance = agent_sl_point.l() - lateral_dist_ego;
-    double longitudinal_distance = agent_sl_point.s() - longitudinal_dist_ego;
+    double lateral_distance = agent_xy.y() - ego_xy.y(); // lateral distance
+    double longitudinal_distance =
+        agent_xy.x() - ego_xy.x(); // longitudinal distance
+
     // Ignore vehicles that are too far
     if (std::fabs(lateral_distance) >= lateral_threshold ||
         longitudinal_distance >= longitudinal_threshold_high) {
       continue;
     }
-    // ingnore negative longitudinal distance
+    // Ignore vehicles behind ego
     if (longitudinal_distance < 0.0) {
       continue;
     }
-    // too close to ego vehicle 0.0
+    // Too close to ego vehicle
     if (std::fabs(longitudinal_distance) < longitudinal_threshold_low) {
       return 0.0;
     }
@@ -1002,50 +988,22 @@ double XICAMCTSFunction::XICAReflineReward(
     const std::unordered_map<std::string, VehicleState> &cur_state,
     const std::string &id) {
 
-  // Retrieve ego state
-  auto ego_it = cur_state.find("ego");
-  if (ego_it == cur_state.end()) {
-    // AERROR << "Ego vehicle state not found.";
-    return 0.5; // Neutral reward
-  }
-  const VehicleState &ego_state = ego_it->second;
+  // Choose the optimal y position based on the id (ego or agent)
+  double optimal_y =
+      (id == "ego") ? mcts_param_.ego_optimal_y : mcts_param_.agent_optimal_y;
 
-  // Retrieve target vehicle state
-  auto target_it = cur_state.find(id);
-  if (target_it == cur_state.end()) {
-    // AERROR << "Target vehicle state not found for id: " << id;
-    return 0.5;
-  }
-  const VehicleState &veh_state = target_it->second;
+  // Calculate the delta y (difference from optimal y)
+  double delta_l = cur_state.at(id).y() - optimal_y;
 
-  common::math::Vec2d agent_position(veh_state.x(), veh_state.y());
-  common::math::Vec2d ego_position(ego_state.x(), ego_state.y());
-  double agent_l = 0.0;
-  double agent_s = 0.0;
-  double ego_l = 0.0;
-  double ego_s = 0.0;
-
-  // reference_line_info_->GetProjection(agent_position, &agent_s, &agent_l);
-  // reference_line_info_->GetProjection(ego_position, &ego_s, &ego_l);
-
-  // // ATRACE << id << ", xiepanpan: agent_l is : " << agent_l;
-  // // ATRACE << id << ", xiepanpan: ego_l is : " << ego_l;
-
-  double delta_l = agent_l - ego_l; // l has direction
-  // ATRACE << id << "delta_l is : " << delta_l;
-  if (delta_l < 0.0) {
-    // AERROR << "delta_l is : " << delta_l << "agent is in the right side of
-    // ego";
-    return 0.0;
-  } else if (delta_l > 3.0) {
-    // ATRACE << id << "delta_l is large than 3, delta_l = : " << delta_l;
-    return 1.0;
+  // Determine the reward based on delta_l
+  if (delta_l > 2.0 || delta_l < -2.0) {
+    return 0.0; // Reward is 0 if delta_l is outside the range of -2 to 2
+  } else if (delta_l == 0.0) {
+    return 1.0; // Reward is 1 if delta_l is exactly 0
   } else {
-    return delta_l / 3.0;
-    // return 1 - std::exp(-1.5 * delta_l); // num is detremined by
-    // https://www.desmos.com/calculator/cygdujp3gz?lang=zh-CN
+    // Gradually decrease reward linearly as delta_l approaches -2 or 2
+    return 1.0 - std::fabs(delta_l) / 2.0;
   }
-  return 0.0;
 }
 
 double XICAMCTSFunction::XICAHistoryConsistencyReward(
@@ -1131,20 +1089,27 @@ double XICAMCTSFunction::SmoothnessReward(const VehicleState &cur_state,
   }
 }
 
-double XICAMCTSFunction::OccReward(const VehicleState &next_state) {
-  if (true) {
-    double occ_bound_upper_limit = -2.0;
-    double dis = next_state.y();
-    if (dis > mcts_param_.occ_bound_max) {
-      return 0.0;
-    } else if (dis > occ_bound_upper_limit && dis < mcts_param_.occ_bound_max) {
-      double reward = (dis / occ_bound_upper_limit);
-      return reward;
-    } else {
-      return 1.0;
-    }
+double XICAMCTSFunction::OccReward(const VehicleState &next_state,
+                                   std::string id) {
+  double occ_bound_lower_limit = -2.0;
+  double occ_bound_upper_limit = 6.0;
+  double distance_threshold = 1.0;
+
+  // 计算到两个边界的距离
+  double dis_to_lower = std::fabs(next_state.y() - occ_bound_lower_limit);
+  double dis_to_upper = std::fabs(next_state.y() - occ_bound_upper_limit);
+
+  // 确定最近的距离
+  double dis = std::min(dis_to_lower, dis_to_upper);
+
+  if (dis <= distance_threshold) {
+    // 根据距离阈值内的接近程度计算奖励
+    double reward = 1.0 - (dis / distance_threshold);
+    return reward;
+  } else {
+    // 如果距离大于阈值，返回最大奖励
+    return 1.0;
   }
-  return 0.0;
 }
 
 // New Action Consistency reward
@@ -1232,22 +1197,27 @@ double XICAMCTSFunction::AccReward(const VehicleState &veh_state,
 double XICAMCTSFunction::XICAEfficiencyReward(const VehicleState &veh_state,
                                               const std::string &id) {
   double target_speed;
+
+  // Get target speed for the vehicle
   auto it = mcts_param_.obs_target_speed.find(id);
   if (it == mcts_param_.obs_target_speed.end()) {
-    // AERROR << "Target speed of obstacle is not set for ID: " << id;
     target_speed = mcts_param_.veh_param.max_vel;
   } else {
     target_speed = it->second;
   }
+
   double current_speed = veh_state.vel();
-  target_speed = 10;
+
+  // Avoid division by zero
   if (target_speed == 0) {
     target_speed = 1e-5;
   }
-  if (current_speed >= target_speed) {
+
+  // Reward calculation based on speed comparison
+  if (std::fabs(current_speed) >= std::fabs(target_speed)) {
     return 1.0;
   } else {
-    return current_speed / target_speed;
+    return std::fabs(current_speed) / (std::fabs(target_speed) + 1e-5);
   }
 }
 

@@ -4,6 +4,7 @@
 #include "../tree_node/tree_node.h"
 #include "../common/vec2d.h"
 #include "../common/trajectory_point.h"
+#include <string>
 
 #include <algorithm>
 
@@ -19,7 +20,7 @@ struct XICARewardInfo : public RewardInfo {
   double xica_w_safe = 1.0;
   double xica_w_occ = 1.0;
   double xica_w_cons_his = 0.5;
-  double xica_w_refline = 1.0;
+  double xica_w_refline = 2.0;
 };
 
 enum XICAObsType { XICACutIn = 0, LaneKeep = 1};
@@ -51,6 +52,8 @@ struct XICAMCTSParam : public MCTSParam {
   double xica_diff_v_max = 3.0;
   double xica_diff_a_max = 2.0;
   double xica_max_d_theta = 0.8;
+  double ego_optimal_y = 0.0;
+  double agent_optimal_y = 4.0;
   std::unordered_map<std::string, XICAObsType> obs_if_cut_in_config;
   std::vector<VehicleAction> ego_lat_action;
   std::vector<std::unordered_map<std::string, VehicleAction>> ego_agent_action;
@@ -77,7 +80,7 @@ class XICAMCTSFunction : public BehaviorMCTSFunctionBase {
   void InitNode(MCTSNode *parent_node, const std::unordered_map<std::string, VehicleAction> &action,
                 MCTSNode *new_node) override;
   
-  double OccReward(const VehicleState &next_state);
+  double OccReward(const VehicleState &next_state, std::string id);
 
   double ActionConsistencyReward_(const VehicleAction &veh_action, const VehicleAction &last_veh_action);
   double TargetSpeedRward(const VehicleState &next_state, const std::string &id);

@@ -13,8 +13,6 @@ void Planner::Init() {
 }
 
 bool Planner::MakeDecision() {
-  auto start_t = std::chrono::high_resolution_clock::now();
-
   // 1. build gaming info
   if (!BuildGamingInfo()) {
     return false;
@@ -35,9 +33,15 @@ bool Planner::MakeDecision() {
       return false;
     }
 
+    auto start_t = std::chrono::high_resolution_clock::now();
+
     if (!mcts_tree_->UctSearch()) {
       std::cout << "UctSearch failed!" << std::endl;
     }
+    auto end_t = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> diff = end_t - start_t;
+    std::cout << "UctSearch time(ms): " << diff.count() * 1000 << std::endl;
 
     // 4.Modify Trajectory
     if (!InterpolateResult(true)) {
@@ -45,7 +49,6 @@ bool Planner::MakeDecision() {
       continue;
     }
   }
-
   return true;
 }
 
@@ -67,7 +70,7 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
   mcts_tree_ = nullptr;
 
   // Target Speed
-  mcts_param_.obs_target_speed[id] = obstacle.speed();
+  mcts_param_.obs_target_speed[id] = obstacle.trajectory()[0].trajectory_point()[0].v();
 
   // Prediction obstacles
   // pred_obs_.clear();
@@ -158,7 +161,7 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
                          .y());
 
   // Reaction Time
-  double agent_speed = obstacle.speed();
+  double agent_speed = obstacle.trajectory()[0].trajectory_point()[0].v();
   double ego_speed = mcts_param_.ego_traj_points[0].v();
   double interval_speed = ego_speed - agent_speed;
   // std::cout << "agent speed: " << agent_speed << ", ego speed: " << ego_speed
@@ -397,7 +400,7 @@ bool Planner::LoadParams() {
   mcts_param.reward_info.w_ref = 0.3;            // w_ref: 0.3
   mcts_param.reward_info.w_eff = 0.3;            // w_eff: 0.3
   mcts_param.reward_info.w_safe = 1.0;           // w_safe: 1.0
-  mcts_param.reward_info.w_pred = 0.8;           // w_pred: 0.8
+  mcts_param.reward_info.w_pred = 0.4;           // w_pred: 0.8
   mcts_param.reward_info.w_cons_act = 0.2;       // w_cons_act: 0.2
   mcts_param.reward_info.w_cons_his = 0.2;       // w_cons_his: 0.2
   mcts_param.reward_info.invalid_penalty = -0.5; // invalid_penalty: -0.5
@@ -426,7 +429,7 @@ bool Planner::LoadParams() {
   mcts_param.xica_idm_param.idmepsilon = 1e-5;       // idmepsilon: 1e-5
 
   // 6. 其它参数
-  mcts_param.xica_reward_info.xica_w_refline = 1.0; // xica_w_refline: 1.0
+  mcts_param.xica_reward_info.xica_w_refline = 2.0; // xica_w_refline: 1.0
 
   // 将配置保存到成员变量中
   mcts_param_ = mcts_param;
