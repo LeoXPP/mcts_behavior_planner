@@ -177,6 +177,7 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
     nlohmann::json j;
     j["nodes"] = nlohmann::json::array();
     j["bestnodeseq"] = best_node_seq_info_; // 新增字段保存最优节点信息
+    j["node_reward_iteration"] = nlohmann::json::array();
 
     if (!root_) {
       std::cout << "Root is null. Cannot save visualization.";
@@ -275,6 +276,20 @@ bool MCTSTree::SaveTreeVisualization(const std::string &base_filename,
         node_json["max_size"] = node->max_size();
         node_json["expanded_num"] = node->expanded_num();
         j["nodes"].push_back(node_json);
+        
+        nlohmann::json reward_iter_json;
+        reward_iter_json["node_id"] = node->id();
+        reward_iter_json["current_iter"] = node->iter();
+        reward_iter_json["history"] = nlohmann::json::array();
+
+        for(const auto& [iteration, reward] : node->reward_history()){
+          nlohmann::json history_entry;
+          history_entry["iteration"] = iteration;
+          history_entry["reward"] = reward;
+          reward_iter_json["history"].push_back(history_entry);
+        }
+        j["node_reward_iteration"].push_back(reward_iter_json);
+
       }
 
       for (auto child : node->children()) {

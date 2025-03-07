@@ -1,7 +1,6 @@
 #include "tree_node.h"
 
-
-namespace apollo{
+namespace apollo {
 namespace BehaviorPlanner {
 
 void MCTSNode::AddChild(MCTSNode *child) {
@@ -45,6 +44,9 @@ void MCTSNode::Update(double G, int number_of_threads) {
   }
   visits_ += number_of_threads;
   reward_ = reward_ + 1.0 / visits_ * (G - reward_);
+  if (need_record_model) {
+    reward_history_.emplace_back(visits_, G);
+  }
 }
 
 void MCTSNode::DebugString() const {
@@ -52,7 +54,8 @@ void MCTSNode::DebugString() const {
     std::cout << "Tree not expanded yet";
     return;
   }
-  std::cout << "Rewards: " << reward() << ", Visits: " << visits() << ", Size: " << size();
+  std::cout << "Rewards: " << reward() << ", Visits: " << visits()
+            << ", Size: " << size();
 };
 
 } // namespace BehaviorPlanner

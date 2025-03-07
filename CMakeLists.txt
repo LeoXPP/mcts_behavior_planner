@@ -7,8 +7,7 @@ set(CMAKE_BUILD_TYPE Debug)
 # 设置 C++17 标准
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wall") # 在CMakeLists.txt中明确指定
-# 在CMakeLists.txt中添加
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g3 -Wall -fno-omit-frame-pointer") # 在CMakeLists.txt中添加
 add_compile_options(-fsanitize=address)
 add_link_options(-fsanitize=address)
 

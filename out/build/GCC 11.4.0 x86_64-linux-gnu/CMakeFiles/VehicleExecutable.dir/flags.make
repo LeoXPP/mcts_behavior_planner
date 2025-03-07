@@ -6,5 +6,5 @@ CXX_DEFINES =
 
 CXX_INCLUDES = -I/home/xie/XPP_ARTICLE_CODE/article_code/vehicle_state -I/home/xie/XPP_ARTICLE_CODE/article_code/common -I/home/xie/XPP_ARTICLE_CODE/article_code/mcts_base -I/home/xie/XPP_ARTICLE_CODE/article_code/mcts_tree -I/home/xie/XPP_ARTICLE_CODE/article_code/tree_node -I/home/xie/XPP_ARTICLE_CODE/article_code/mcts_in_narrow_meeting -I/home/xie/XPP_ARTICLE_CODE/article_code/behavior_planner -I/home/xie/XPP_ARTICLE_CODE/article_code/conf
 
-CXX_FLAGS = -O0 -g3 -Wall -fsanitize=address -std=gnu++17
+CXX_FLAGS = -O0 -g3 -Wall -fno-omit-frame-pointer -fsanitize=address -std=gnu++17
 

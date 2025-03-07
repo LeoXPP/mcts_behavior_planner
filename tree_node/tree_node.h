@@ -141,6 +141,10 @@ public:
 
   void DebugString() const;
 
+  const std::vector<std::pair<int, double>>& reward_history() const{
+    return reward_history_;
+  }
+
 protected:
   std::string id_ = "0";
   int iter_ = 0;
@@ -159,6 +163,10 @@ protected:
   int max_size_ = 0;
   int expanded_num_ = 0;
   NodeType node_type_ = NodeType::NORM;
+
+  bool need_record_model = true;
+  std::vector<std::pair<int, double>> reward_history_;
+
 };
 
 } // namespace BehaviorPlanner

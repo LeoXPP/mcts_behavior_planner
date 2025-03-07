@@ -43,11 +43,11 @@ bool Planner::MakeDecision() {
     std::chrono::duration<double> diff = end_t - start_t;
     std::cout << "UctSearch time(ms): " << diff.count() * 1000 << std::endl;
 
-    // 4.Modify Trajectory
-    if (!InterpolateResult(true)) {
-      std::cout << "Failed interpolation";
-      continue;
-    }
+    // // 4.Modify Trajectory
+    // if (!InterpolateResult(true)) {
+    //   std::cout << "Failed interpolation";
+    //   continue;
+    // }
   }
   return true;
 }
