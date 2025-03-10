@@ -41,7 +41,7 @@ struct XICAIDMParam {
 struct XICAMCTSParam : public MCTSParam {
   XICARewardInfo xica_reward_info;
   XICAIDMParam xica_idm_param;
-  double ego_agent_reward_adjust = 1.0;
+  double ego_agent_reward_adjust = 1.2;
   bool use_ref_pre_construct = true;
   bool xica_need_preconstruct = false;
   bool xica_need_ego_idm = false;

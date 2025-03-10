@@ -351,7 +351,7 @@ void XICAMCTSFunction::PreConstructTree(MCTSNode *root, bool is_pre_construct) {
     MCTSNode *new_node = new MCTSNode(node->iter() + 1, next_state);
     InitNode(node, selected_action, new_node);
     new_node->set_node_type(NodeType::PRED);
-    Prepuring(new_node);
+    // Prepuring(new_node);
 
     // Parent node setting
     node->AddChild(new_node);
@@ -800,6 +800,11 @@ double XICAMCTSFunction::RewardFun(MCTSNode *node) {
       reward_details.occupancy_reward +=
           other_w * mcts_param_.xica_reward_info.xica_w_occ *
           OccReward(cur_state.at(id), id);
+
+      reward_details.refline_reward +=
+          other_w * mcts_param_.xica_reward_info.xica_w_refline *
+          XICAReflineReward(cur_state, id);
+
 
       if (node->iter() >= 2) {
         reward_details.history_consistency_reward +=

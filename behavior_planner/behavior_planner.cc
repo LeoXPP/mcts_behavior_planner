@@ -43,11 +43,11 @@ bool Planner::MakeDecision() {
     std::chrono::duration<double> diff = end_t - start_t;
     std::cout << "UctSearch time(ms): " << diff.count() * 1000 << std::endl;
 
-    // // 4.Modify Trajectory
-    // if (!InterpolateResult(true)) {
-    //   std::cout << "Failed interpolation";
-    //   continue;
-    // }
+    // 4.Modify Trajectory
+    if (!InterpolateResult(true)) {
+      std::cout << "Failed interpolation";
+      continue;
+    }
   }
   return true;
 }
@@ -242,7 +242,7 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
   }
 
   std::vector<double> jerk_action{-2.0, -1.0, 0.0, 1.0};
-  std::vector<double> dkappa_action{ -0.75, -0.25, 0, 0.1};
+  std::vector<double> dkappa_action{ -0.75, -0.25, 0, 0.25, 0.5, 0.75};
   // std::vector<double> jerk_action{-2.0, -1.0, 0.0};
   // std::vector<double> dkappa_action{-1.0, -0.75, -0.5, -0.25, 0, 0.25};
 
@@ -301,7 +301,7 @@ bool Planner::ConstructMCTree() {
     TrajectoryPoint init_obs_traj =
         obstacle.trajectory()[0].trajectory_point()[0];
     VehicleState obs_state(
-        init_obs_traj.path_point().x(), init_obs_traj.path_point().y(),
+        init_obs_traj.path_point().x() - 20, init_obs_traj.path_point().y() - 4,
         init_obs_traj.path_point().theta(), init_obs_traj.v(),
         init_obs_traj.a(), init_obs_traj.path_point().kappa());
     init_state[id] = obs_state;

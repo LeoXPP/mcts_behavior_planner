@@ -132,6 +132,8 @@ MCTSNode *MCTSTree::Expand(MCTSNode *node) {
     return nullptr;
   }
   MCTSNode *new_node = tree_node_pool_->GetTreeNode();
+
+  // MCTSNode *new_node = new MCTSNode();
   if (mcts_func_->ExpandNode(node, new_node)) {
     // Check validality
     mcts_func_->Prepuring(new_node);
