@@ -302,7 +302,7 @@ double BehaviorMCTSFunctionBase::ActionConsistencyReward(const VehicleAction &ve
   double max_jerk_diff = 6.0;
   double max_dkappa_diff = 1.0;
   double jerk_diff = std::fabs(veh_action.jerk() - last_veh_action.jerk());
-  double dkappa_diff = std::fabs(veh_action.dkappa() - last_veh_action.dkappa());
+  double dkappa_diff = std::fabs(veh_action.dkappa() - last_veh_action.dkappa())  * 0;;
   return 1 - 0.5 * jerk_diff / (max_jerk_diff + kEpsilon) - 0.5 * dkappa_diff / (max_dkappa_diff + kEpsilon);
 }
 

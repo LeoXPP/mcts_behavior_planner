@@ -12,7 +12,7 @@ void Planner::Init() {
   }
 }
 
-bool Planner::MakeDecision() {
+bool Planner::MakeDecision(double &time_cost) {
   // 1. build gaming info
   if (!BuildGamingInfo()) {
     return false;
@@ -24,7 +24,8 @@ bool Planner::MakeDecision() {
   }
 
   for (auto &obstacle : pred_obs_) {
-    if (!UpdateDecisionParams(obstacle.second, obstacle.first, OppoCollide)) {
+    if (!UpdateDecisionParams(obstacle.second, obstacle.first, OppoCollide,
+                              MergeInScene)) {
       return false;
     }
 
@@ -42,6 +43,8 @@ bool Planner::MakeDecision() {
 
     std::chrono::duration<double> diff = end_t - start_t;
     std::cout << "UctSearch time(ms): " << diff.count() * 1000 << std::endl;
+
+    time_cost = diff.count() * 1000;
 
     // 4.Modify Trajectory
     if (!InterpolateResult(true)) {
@@ -62,15 +65,15 @@ bool Planner::InterpolateResult(bool need_extend) {
   return true;
 }
 
-
-
 bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
                                    const std::string &id,
-                                   const ObstacleType &obs_type) {
+                                   const ObstacleType &obs_type,
+                                   const ScenarioType &scenario_type) {
   mcts_tree_ = nullptr;
 
   // Target Speed
-  mcts_param_.obs_target_speed[id] = obstacle.trajectory()[0].trajectory_point()[0].v();
+  mcts_param_.obs_target_speed[id] =
+      obstacle.trajectory()[0].trajectory_point()[0].v();
 
   // Prediction obstacles
   // pred_obs_.clear();
@@ -85,7 +88,7 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
   double vel_factor = 0.0;
   mcts_param_.time_step.clear();
 
-  mcts_param_.time_step = {0.5, 0.5, 1.0, 1.0, 2.0};
+  mcts_param_.time_step = {1, 1, 1, 1, 1};
   mcts_param_.max_iter = mcts_param_.time_step.size();
   mcts_param_.reward_info.w_pred =
       std::min(mcts_param_.reward_info.w_pred, 0.8);
@@ -103,8 +106,8 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
       // std::cout << "cur_t: " << cur_t << "relative_time: "
       //  << ego_traj_.TrajectoryPointAt(ego_traj_.NumOfPoints() - 1)
       //         .relative_time();
-      // std::cout << "xiepanpan: Ego traj length is not sufficient. Using constant
-      // velocity model to extend.";
+      // std::cout << "xiepanpan: Ego traj length is not sufficient. Using
+      // constant velocity model to extend.";
       auto last_valid_point = previous_ego_point;
       double last_x = last_valid_point.path_point().x();
       double last_y = last_valid_point.path_point().y();
@@ -214,8 +217,8 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
     // std::cout << "xiepanpan: EgoIDM";
   } else {
     decision_type_["ego"] = DecisionType::EgoSearch;
-    //decision_type_["ego"] = DecisionType::EgoPlanning;
-    // std::cout << "xiepanpan: EgoSearch";
+    // decision_type_["ego"] = DecisionType::EgoPlanning;
+    //  std::cout << "xiepanpan: EgoSearch";
   }
 
   decision_type_[id] = DecisionType::ObsSearch;
@@ -234,37 +237,47 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
   mcts_param_.pred_action.clear();
 
   // TODO: set as config
-  mcts_param_.ego_lat_action.clear();
-  std::vector<double> ego_lat_action_set = {0.1, 0.0, -0.1, -0.2};
-  for (size_t i = 0; i < ego_lat_action_set.size(); ++i) {
-    mcts_param_.ego_lat_action.push_back(
-        VehicleAction(0, ego_lat_action_set[i]));
-  }
+  if (scenario_type == ScenarioType::MergeInScene) {
+    mcts_param_.ego_lat_action.clear();
+    std::vector<double> ego_lat_action_set = {2, 0.9,  0.5, 0.0, -0.1, -0.2, -0.9, -2};
+    std::vector<double> ego_jerk_action_set = {-1.0, 0.0, 1.0};
 
-  std::vector<double> jerk_action{-2.0, -1.0, 0.0, 1.0};
-  std::vector<double> dkappa_action{ -0.75, -0.25, 0, 0.25, 0.5, 0.75};
-  // std::vector<double> jerk_action{-2.0, -1.0, 0.0};
-  // std::vector<double> dkappa_action{-1.0, -0.75, -0.5, -0.25, 0, 0.25};
+    std::vector<double> jerk_action{-2.0, -1.0, 0.0, 1.0, 2.0, 3.0};
+    // std::vector<double> jerk_action{-2.0, -1.0, 0.0};
+    // std::vector<double> dkappa_action{-1.0, -0.75, -0.5, -0.25, 0, 0.25};
 
-  for (size_t i = 0; i < jerk_action.size(); ++i) {
-    for (size_t j = 0; j < dkappa_action.size(); ++j) {
+    for (size_t i = 0; i < jerk_action.size(); ++i) {
+
       mcts_param_.norm_action.push_back(
-          VehicleAction(jerk_action[i], dkappa_action[j]));
-    }
-    mcts_param_.lk_action.push_back(VehicleAction(jerk_action[i], 0.f));
-    mcts_param_.pred_action.push_back(VehicleAction(jerk_action[i], 0.f));
-  }
+          VehicleAction(jerk_action[i], 0.f));
 
-  mcts_param_.ego_agent_action.clear();
-  for (size_t i = 0; i < ego_lat_action_set.size(); ++i) {
-    for (size_t j = 0; j < jerk_action.size(); ++j) {
-      for (size_t k = 0; k < dkappa_action.size(); ++k) {
-        std::unordered_map<std::string, VehicleAction> node_action;
-        node_action["ego"] = VehicleAction(0.f, ego_lat_action_set[i]);
-        node_action[id] = VehicleAction(jerk_action[j], dkappa_action[k]);
-        mcts_param_.ego_agent_action.push_back(node_action);
+      mcts_param_.lk_action.push_back(VehicleAction(jerk_action[i], 0.f));
+      mcts_param_.pred_action.push_back(VehicleAction(jerk_action[i], 0.f));
+    }
+
+    mcts_param_.ego_agent_action.clear();
+    for (size_t l = 0; l < ego_jerk_action_set.size(); ++l) {
+      for (size_t i = 0; i < ego_lat_action_set.size(); ++i) {
+        for (size_t j = 0; j < jerk_action.size(); ++j) {
+          std::unordered_map<std::string, VehicleAction> node_action;
+          node_action["ego"] =
+              VehicleAction(ego_lat_action_set[l], ego_lat_action_set[i]);
+          node_action[id] = VehicleAction(jerk_action[j], 0.0);
+          mcts_param_.ego_agent_action.push_back(node_action);
+        }
       }
     }
+  } else {
+    // for (size_t i = 0; i < ego_lat_action_set.size(); ++i) {
+    //   for (size_t j = 0; j < jerk_action.size(); ++j) {
+    //     for (size_t k = 0; k < dkappa_action.size(); ++k) {
+    //       std::unordered_map<std::string, VehicleAction> node_action;
+    //       node_action["ego"] = VehicleAction(0.f, ego_lat_action_set[i]);
+    //       node_action[id] = VehicleAction(jerk_action[j], dkappa_action[k]);
+    //       mcts_param_.ego_agent_action.push_back(node_action);
+    //     }
+    //   }
+    // }
   }
 
   // Shuffle ego_agent_action
@@ -273,9 +286,7 @@ bool Planner::UpdateDecisionParams(const ObstacleInfo &obstacle,
   std::shuffle(mcts_param_.ego_agent_action.begin(),
                mcts_param_.ego_agent_action.end(), gen);
 
-  mcts_func_ = new XICAMCTSFunction(mcts_param_, obs_type);
-  // mcts_func_->InitWorldView(world_view_);
-  // mcts_func_->InitReferenceLineInfo(reference_line_info_);
+  mcts_func_ = new XICAMCTSFunction(mcts_param_, obs_type, scenario_type);
 
   return true;
 }
@@ -301,7 +312,7 @@ bool Planner::ConstructMCTree() {
     TrajectoryPoint init_obs_traj =
         obstacle.trajectory()[0].trajectory_point()[0];
     VehicleState obs_state(
-        init_obs_traj.path_point().x() - 20, init_obs_traj.path_point().y() - 4,
+        init_obs_traj.path_point().x() - 0.0, init_obs_traj.path_point().y(),
         init_obs_traj.path_point().theta(), init_obs_traj.v(),
         init_obs_traj.a(), init_obs_traj.path_point().kappa());
     init_state[id] = obs_state;
@@ -369,9 +380,9 @@ bool Planner::LoadParams() {
 
   // 3. MCTS 参数
   XICAMCTSParam mcts_param;
-  mcts_param.max_search_iter = 1000; // mcts_max_search_iter: 1000
+  mcts_param.max_search_iter = 2000; // mcts_max_search_iter: 1000
   mcts_param.max_search_time = 3.0;  // mcts_max_search_time: 3.0
-  mcts_param.pool_size = 1000;       // mcts_node_pool_size: 1000
+  mcts_param.pool_size = 10000;      // mcts_node_pool_size: 1000
   mcts_param.veh_param = veh_param;
   mcts_param.gamma = 0.8;                  // gamma: 0.8
   mcts_param.c = 1.41;                     // c: 1.41
@@ -387,9 +398,9 @@ bool Planner::LoadParams() {
   mcts_param.xica_diff_v_max = 3.0;        // xica_diff_v_max: 3.0
   mcts_param.xica_diff_a_max = 2.0;        // xica_diff_a_max: 2.0
 
-  mcts_param.ego_agent_reward_adjust = 1.0; // ego_agent_reward_adjust: 1.0
+  mcts_param.ego_agent_reward_adjust = 2; // ego_agent_reward_adjust: 1.0
 
-  mcts_param.use_ref_pre_construct = false; // use_ref_pre_construct: false
+  mcts_param.use_ref_pre_construct = false;  // use_ref_pre_construct: false
   mcts_param.xica_need_preconstruct = false; // xica_need_preconstruct: true
   mcts_param.xica_need_ego_idm = false;      // xica_need_ego_idm: true
 
@@ -417,7 +428,7 @@ bool Planner::LoadParams() {
   mcts_param.xica_reward_info.xica_w_eff = 0.6;      // xica_w_eff: 0.6
   mcts_param.xica_reward_info.xica_w_acc = 0.5;      // xica_w_acc: 0.5
   mcts_param.xica_reward_info.xica_w_safe = 1.0;     // xica_w_safe: 1.0
-  mcts_param.xica_reward_info.xica_w_occ = 0.4;      // xica_w_occ: 0.4
+  mcts_param.xica_reward_info.xica_w_occ = 2;      // xica_w_occ: 0.4
   mcts_param.xica_reward_info.xica_w_cons_his = 0.1; // xica_w_cons_his: 0.1
 
   // 5. IDM 参数
@@ -436,15 +447,15 @@ bool Planner::LoadParams() {
   return true;
 }
 
-bool Planner::ConstructTestInput(const TestInputParams& params) {
+bool Planner::ConstructTestInput(const TestInputParams &params) {
   // ----- 构造自车（ego）的规划轨迹点 -----
   for (int i = 0; i < params.total_points; ++i) {
     PathPoint pp;
-    const double t = i * params.delta_time;  // 当前时间
+    const double t = i * params.delta_time; // 当前时间
 
     // 计算自车轨迹点：x轴匀速直线运动
     pp.set_x(params.ego_initial_x + params.ego_speed * t);
-    pp.set_y(params.ego_initial_y);  // y 坐标保持不变
+    pp.set_y(params.ego_initial_y); // y 坐标保持不变
     pp.set_theta(params.ego_initial_theta);
     pp.set_s(params.ego_initial_s + params.ego_speed * t);
     pp.set_kappa(params.ego_initial_kappa);
@@ -456,14 +467,16 @@ bool Planner::ConstructTestInput(const TestInputParams& params) {
 
   // ----- 构造障碍车（他车）的预测轨迹 -----
   PredictionObstacle obs;
+  obs.set_length(5.0); // 障碍车长度
+  obs.set_width(2.0);  // 障碍车宽度
   obs.AddTrajectory(Trajectory()); // 初始化第一条轨迹
   for (int i = 0; i < params.total_points; ++i) {
     PathPoint pp;
-    const double t = i * params.delta_time;  // 当前时间
+    const double t = i * params.delta_time; // 当前时间
 
     // 计算障碍车轨迹点：x轴匀速运动（可正向或反向，根据传入的 obs_speed）
     pp.set_x(params.obs_initial_x + params.obs_speed * t);
-    pp.set_y(params.obs_initial_y);  // y 坐标保持不变
+    pp.set_y(params.obs_initial_y); // y 坐标保持不变
     pp.set_theta(params.obs_initial_theta);
     pp.set_s(params.obs_initial_s + params.obs_speed * t);
     pp.set_kappa(params.obs_initial_kappa);
@@ -477,7 +490,7 @@ bool Planner::ConstructTestInput(const TestInputParams& params) {
   std::unordered_map<std::string, VehicleAction> action_sample;
   action_sample["ego"] = VehicleAction(0.0, 0.0);
   action_sample["01"] = VehicleAction(0.0, 0.0);
-  
+
   return true;
 }
 

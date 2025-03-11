@@ -31,7 +31,7 @@ public:
 
   bool ConstructTestInput(const TestInputParams& params);
   
-  bool MakeDecision();
+  bool MakeDecision(double &time_cost);
 
   bool BuildGamingInfo();
 
@@ -39,7 +39,7 @@ public:
 
   using ObstacleInfo = PredictionObstacle;
 
-  bool UpdateDecisionParams(const ObstacleInfo &obstacle, const std::string &id, const ObstacleType &obs_type);
+  bool UpdateDecisionParams(const ObstacleInfo &obstacle, const std::string &id, const ObstacleType &obs_type, const ScenarioType &scenario_type);
 
   bool ConstructMCTree();
 

@@ -416,7 +416,7 @@ void XICAMCTSFunction::Prepuring(MCTSNode *new_node) {
             mcts_param_.long_expand_factor * mcts_param_.veh_param.length,
             mcts_param_.lat_expand_factor * mcts_param_.veh_param.width);
         if (ego_box.HasOverlap(obs_box)) {
-          new_node->set_reward(1);
+          new_node->set_reward(0);
           new_node->set_valid(false);
           // // ATRACE << "xiepanpan: Ego collide with obstacle." << "the
           // obstacle id is:" <<id;
@@ -547,7 +547,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
 
   // check kappa
   if (check_valid && std::fabs(new_kappa) > mcts_param_.veh_param.max_kappa) {
-    std::cout << "xiepanpan: new_kappa is out of range" << new_kappa;
+    // std::cout << "xiepanpan: new_kappa is out of range" << new_kappa;
     return false;
   }
   next_state.set_kappa(new_kappa);
@@ -560,7 +560,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
 
   // check acc
   if (check_valid && new_acc > mcts_param_.veh_param.max_acc) {
-    std::cout << "xiepanpan: acc is too large" << new_acc;
+    // std::cout << "xiepanpan: acc is too large" << new_acc;
     return false;
   }
   if (new_acc < mcts_param_.veh_param.min_acc) {
@@ -583,7 +583,7 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
         (new_acc < -kEpsilon ||
          (std::fabs(new_acc) < kEpsilon && new_jerk < -kEpsilon))) {
       // Already stopped, but sampled a deceleration action
-      std::cout << "xiepanpan: Already stopped, but sampled a deceleration";
+      // std::cout << "xiepanpan: Already stopped, but sampled a deceleration";
       return false;
     } else {
       if (SolveQuadraticEquationForRealRoots(
@@ -632,8 +632,8 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
   vehicle_state_detail.new_vel = new_vel;
   // check vel
   if (check_valid && new_vel > mcts_param_.veh_param.max_vel) {
-    std::cout << "xiepanpan: vel is out of range" << new_vel
-              << ",  and the max vel is:" << mcts_param_.veh_param.max_vel;
+    // std::cout << "xiepanpan: vel is out of range" << new_vel
+    //           << ",  and the max vel is:" << mcts_param_.veh_param.max_vel;
     return false;
   }
   next_state.set_vel(new_vel);
@@ -655,115 +655,151 @@ bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
   return true;
 }
 
+// bool XICAMCTSFunction::XICAJerkModel(MCTSNode *node, const std::string &id,
+//                                      const VehicleAction &action,
+//                                      const VehicleState &cur_state,
+//                                      VehicleState &next_state, const double
+//                                      dt, bool check_valid) {
+//   // Kinematic bicycle model implementation
+//   VehicleStateDetails &vehicle_state_detail = node->vehicle_states[id];
+
+//   /*========= 1. Steering system update =========*/
+//   // Directly use commanded kappa (previously stored in action.dkappa())
+//   double new_kappa = action.dkappa();
+//   vehicle_state_detail.new_kappa = new_kappa;
+
+//   // Validate curvature constraints
+//   if (check_valid && std::fabs(new_kappa) > mcts_param_.veh_param.max_kappa)
+//   {
+//     std::cout << "xiepanpan: new_kappa is out of range" << new_kappa;
+//     return false;
+//   }
+//   next_state.set_kappa(new_kappa);
+
+//   /*========= 2. Longitudinal motion update =========*/
+//   // Directly use commanded acceleration (previously stored in action.jerk())
+//   double new_acc = action.jerk();
+//   vehicle_state_detail.new_acc = new_acc;
+
+//   // Validate acceleration constraints
+//   if (check_valid && (new_acc > mcts_param_.veh_param.max_acc ||
+//                       new_acc < mcts_param_.veh_param.min_acc)) {
+//     std::cout << "xiepanpan: acc is out of range" << new_acc;
+//     return false;
+//   }
+
+//   // Velocity update: v = v0 + a*dt
+//   double new_vel = cur_state.vel() + new_acc * dt;
+
+//   // Prevent negative velocity (no reverse motion)
+//   if (new_vel < 0) {
+//     new_vel = 0;
+//     // Calculate effective braking duration
+//     double valid_dt = -cur_state.vel() / new_acc;
+//     valid_dt = std::max(0.0, std::min(valid_dt, dt));
+//     vehicle_state_detail.stop_time = valid_dt;
+//   }
+
+//   // Validate velocity constraints
+//   if (check_valid && new_vel > mcts_param_.veh_param.max_vel) {
+//     std::cout << "xiepanpan: vel is out of range" << new_vel
+//               << ",  and the max vel is:" << mcts_param_.veh_param.max_vel;
+//     return false;
+//   }
+//   next_state.set_vel(new_vel);
+//   next_state.set_acc(new_acc);
+
+//   /*========= 3. Position and heading update =========*/
+//   // Calculate average velocity for heading computation
+//   double avg_vel = 0.5 * (cur_state.vel() + new_vel);
+
+//   // Calculate displacement: s = v0*dt + 0.5*a*dt²
+//   double ds = cur_state.vel() * dt + 0.5 * new_acc * dt * dt;
+//   next_state.set_s(cur_state.s() + ds);
+
+//   // Heading update: θ = θ0 + v_avg*κ*dt
+//   double delta_theta = avg_vel * new_kappa * dt;
+//   double new_theta =
+//       common::math::NormalizeAngle(cur_state.theta() + delta_theta);
+//   next_state.set_theta(new_theta);
+
+//   /*========= 4. Lateral dynamics check =========*/
+//   // Calculate lateral acceleration: a_lat = v²*κ
+//   double lat_acc = new_vel * new_vel * std::abs(new_kappa);
+//   vehicle_state_detail.lat_acc = lat_acc;
+//   if (check_valid && lat_acc > mcts_param_.veh_param.max_lat_acc + 4) {
+//     std::cout << "xiepanpan: lat acc is out of range" << lat_acc;
+//     return false;
+//   }
+
+//   /*========= 5. Cartesian coordinates update =========*/
+//   // Use mid-point heading for position update to reduce integration error
+//   double mid_theta =
+//       common::math::NormalizeAngle(cur_state.theta() + 0.5 * delta_theta);
+//   next_state.set_x(cur_state.x() + ds * std::cos(mid_theta));
+//   next_state.set_y(cur_state.y() + ds * std::sin(mid_theta));
+
+//   // Numerical stability check
+//   if (std::isnan(next_state.x()) || std::isnan(next_state.y())) {
+//     std::cout << "xiepanpan: NAN value in x or y";
+//   }
+
+//   return true;
+// }
+
 bool XICAMCTSFunction::BoundaryCheck(MCTSNode *node,
                                      const VehicleState &next_state,
                                      const std::string &id) {
-  // Left turn range check
-  if (id == "ego") {
-    return true;
-  } else {
-    int traj_point_num =
-        mcts_param_.pred_obs.at(id).trajectory()[0].trajectory_point().size();
-  }
-  int traj_point_num =
-      mcts_param_.pred_obs.at(id).trajectory()[0].trajectory_point().size();
-  if (obs_type_ == ObstacleType::OppoLeftTurn) {
-    const auto &obs_init_traj =
-        mcts_param_.pred_obs.at(id).trajectory()[0].trajectory_point()[0];
-    const auto &obs_end_traj = mcts_param_.pred_obs.at(id)
-                                   .trajectory()[0]
-                                   .trajectory_point()[traj_point_num - 1];
-    double dx_ori =
-        obs_end_traj.path_point().x() - obs_init_traj.path_point().x();
-    double dy_ori =
-        obs_end_traj.path_point().y() - obs_init_traj.path_point().y();
-    double dis_lon_ori =
-        std::fabs(dx_ori * std::cos(-obs_init_traj.path_point().theta()) +
-                  dy_ori * std::sin(-obs_init_traj.path_point().theta()));
-    double dx = next_state.x() - obs_init_traj.path_point().x();
-    double dy = next_state.y() - obs_init_traj.path_point().y();
-    double dis_lon =
-        std::fabs(dx * std::cos(-obs_init_traj.path_point().theta()) +
-                  dy * std::sin(-obs_init_traj.path_point().theta()));
-    if (dis_lon - dis_lon_ori > mcts_param_.left_turn_range) {
+  if (scenario_type_ == ScenarioType::MergeInScene) {
+
+    // Common projection calculation for all scenarios
+    double accumulate_s = next_state.x();
+    double lateral = next_state.y();
+
+    // Merge-in scenario parameters
+    constexpr double kFadeStartS = 20.0; // Lane fade start position
+    constexpr double kFadeEndS = 40.0;   // Lane fully disappeared position
+    constexpr double kLeftBound = 6.0;   // Fixed left boundary
+    double dynamic_right_bound = -1.5;   // Initial right boundary
+
+    // Calculate dynamic right boundary
+    if (accumulate_s >= kFadeStartS && accumulate_s <= kFadeEndS) {
+      const double fade_ratio =
+          (accumulate_s - kFadeStartS) / (kFadeEndS - kFadeStartS);
+      dynamic_right_bound = -1.5 + 4.0 * fade_ratio; // Linear transition
+    } else if (accumulate_s > kFadeEndS) {
+      dynamic_right_bound = 2.5; // Final right boundary
+    }
+
+    // Unified boundary check for all vehicles
+    if (lateral < dynamic_right_bound || lateral > kLeftBound) {
+      // std::cout << "[Merge][" << id << "] Boundary violation. Lateral: " <<
+      // lateral
+      //        << " Allowed range: [" << dynamic_right_bound << ", " <<
+      //        kLeftBound
+      //        << "]"
+      //        << " at S=" << accumulate_s;
       return false;
     }
-  }
-  // Lat check for lane keeping
-  else if (obs_type_ == ObstacleType::OppoCollide) {
-    if (mcts_param_.use_ref_pre_construct) {
-      // std::pair<double, double> sl_point =
-      // apollo::common::math::PathMatcher::GetPathFrenetCoordinate(
-      //     mcts_param_.obs_path.at(id), next_state.x(), next_state.y());
+  } else {
+    // if (std::fabs(next_state.y()) > mcts_param_.veh_param.max_delta_l + 4) {
+    //   return false;
+    // }
 
-      // wrt+e down the dis and lateral value
-      VehicleStateDetails &cur_state = node->vehicle_states[id];
-
-      double accumulate_s = 0.0;
-      double lateral = 0.0;
-      common::math::Vec2d obs_point(next_state.x(), next_state.y());
-      // if (!ref_line->GetProjection(obs_point, &accumulate_s, &lateral)) {
-      //   // // AERROR << "xiepanpan Failed to project obstacle point onto
-      //   // reference line: " << id;
-      //   return false;
-      // }
-      cur_state.lateral_dis_to_prediction = lateral;
-
-      if (std::fabs(lateral) > mcts_param_.veh_param.max_delta_l) {
-        // // ATRACE << "xiepanpan:  boundarycheck(use ref preconstruct) failed:
-        // lateral is too large ----" << lateral
-        //        << ", mcts_param_.veh_param.max_delta_l " <<
-        //        mcts_param_.veh_param.max_delta_l;
+    double road_left_bound = 6.0;
+    double road_right_bound = -2.0;
+    // xiepanpan: warning
+    if (true) {
+      common::math::Vec2d xy_helper(next_state.x(), next_state.y());
+      if (next_state.y() > road_left_bound ||
+          next_state.y() < road_right_bound) {
+        // std::cout << "xiepanpan: boundary check failed dis: "
+        //           << next_state.y();
         return false;
-      }
-      if (true) {
-        // if (search_env == nullptr) {
-        //   // // AERROR << "Search environment is nullptr.";
-        //   return false;
-        // }
-        common::math::Vec2d xy_helper(next_state.x(), next_state.y());
-
-        // xiepanpan: Get occ value
-        if (next_state.y() > mcts_param_.occ_bound_max) {
-          // // ATRACE << "xiepanpan: boundary check(use ref preconstruct) occ
-          // failed dis: " << dis;
-          return false;
-        }
-      } else {
-        // AERROR << "World view is nullptr.";
-      }
-    } else {
-      // write down the dis and lateral value
-      VehicleStateDetails &cur_state = node->vehicle_states[id];
-
-      // std::pair<double, double> sl_point =
-      // apollo::common::math::PathMatcher::GetPathFrenetCoordinate(
-      //     mcts_param_.obs_path.at(id), next_state.x(), next_state.y());
-      // cur_state.lateral_dis_to_prediction = sl_point.second;
-
-      if (std::fabs(next_state.y()) > mcts_param_.veh_param.max_delta_l + 4) {
-        // // ATRACE << "xiepanpan: " << id <<"boundarycheck(use predicted traj
-        // preconstruct) failed: lateral is too large ----" << sl_point.second;
-        return false;
-      }
-
-      double road_left_bound = 6.0;
-      double road_right_bound = -2.0;
-      // xiepanpan: warning
-      if (true) {
-        common::math::Vec2d xy_helper(next_state.x(), next_state.y());
-        if (next_state.y() > road_left_bound ||
-            next_state.y() < road_right_bound) {
-          // std::cout << "xiepanpan: boundary check failed dis: "
-          //           << next_state.y();
-          return false;
-        }
-
-      } else {
-        std::cout << "World view is nullptr.";
       }
     }
   }
+
   return true;
 }
 
@@ -804,7 +840,6 @@ double XICAMCTSFunction::RewardFun(MCTSNode *node) {
       reward_details.refline_reward +=
           other_w * mcts_param_.xica_reward_info.xica_w_refline *
           XICAReflineReward(cur_state, id);
-
 
       if (node->iter() >= 2) {
         reward_details.history_consistency_reward +=
@@ -899,9 +934,9 @@ double XICAMCTSFunction::RewardFun(MCTSNode *node) {
 
 double XICAMCTSFunction::XICASafetyReward(
     const std::unordered_map<std::string, VehicleState> &cur_state) {
-  const double lateral_threshold = 3.0;
+  const double lateral_threshold = 5.0;
   const double longitudinal_threshold_high = 30.0;
-  const double longitudinal_threshold_low = 3.0;
+  const double longitudinal_threshold_low = 2.0;
 
   double safety_reward = 1.0;
   auto it = cur_state.find("ego");
@@ -929,10 +964,10 @@ double XICAMCTSFunction::XICASafetyReward(
         longitudinal_distance >= longitudinal_threshold_high) {
       continue;
     }
-    // Ignore vehicles behind ego
-    if (longitudinal_distance < 0.0) {
-      continue;
-    }
+    // // Ignore vehicles behind ego
+    // if (longitudinal_distance < 0.0) {
+    //   continue;
+    // }
     // Too close to ego vehicle
     if (std::fabs(longitudinal_distance) < longitudinal_threshold_low) {
       return 0.0;
@@ -1096,34 +1131,71 @@ double XICAMCTSFunction::SmoothnessReward(const VehicleState &cur_state,
 
 double XICAMCTSFunction::OccReward(const VehicleState &next_state,
                                    std::string id) {
-  double occ_bound_lower_limit = -2.0;
-  double occ_bound_upper_limit = 6.0;
-  double distance_threshold = 1.0;
+  double distance_threshold = 2.0;
 
-  // 计算到两个边界的距离
-  double dis_to_lower = std::fabs(next_state.y() - occ_bound_lower_limit);
-  double dis_to_upper = std::fabs(next_state.y() - occ_bound_upper_limit);
+  if (scenario_type_ == ScenarioType::MergeInScene) {
+    // Merge-in场景的动态边界参数
+    constexpr double kFadeStartS = 20.0;
+    constexpr double kFadeEndS = 40.0;
+    constexpr double kLeftBound = 6.0; // 固定左边界
+    double dynamic_right_bound = -1.0; // 初始右边界
 
-  // 确定最近的距离
-  double dis = std::min(dis_to_lower, dis_to_upper);
+    // 计算纵向位置
+    double accumulate_s = next_state.x();
 
-  if (dis <= distance_threshold) {
-    // 根据距离阈值内的接近程度计算奖励
-    double reward = 1.0 - (dis / distance_threshold);
-    return reward;
+    // 动态计算右边界
+    if (accumulate_s >= kFadeStartS && accumulate_s <= kFadeEndS) {
+      const double fade_ratio =
+          (accumulate_s - kFadeStartS) / (kFadeEndS - kFadeStartS);
+      dynamic_right_bound = -2 + 4.0 * fade_ratio; // 线性过渡
+    } else if (accumulate_s > kFadeEndS) {
+      dynamic_right_bound = 2; // 最终右边界
+    }
+
+    // 计算到两个边界的距离
+    double dis_to_left = std::fabs(next_state.y() - kLeftBound);
+    double dis_to_right = std::fabs(next_state.y() - dynamic_right_bound);
+
+    // 确定最近的距离
+    double dis = std::min(dis_to_left, dis_to_right);
+
+    // 根据最近的距离计算奖励
+    if (dis <= distance_threshold) {
+      // 如果距离在阈值内，奖励随距离减小而减小
+      return (dis / distance_threshold);
+    } else {
+      // 如果距离大于阈值，返回最大奖励
+      return 1.0;
+    }
   } else {
-    // 如果距离大于阈值，返回最大奖励
-    return 1.0;
+    // 其他场景的固定边界
+    double occ_bound_lower_limit = -2.0;
+    double occ_bound_upper_limit = 6.0;
+
+    // 计算到两个边界的距离
+    double dis_to_lower = std::fabs(next_state.y() - occ_bound_lower_limit);
+    double dis_to_upper = std::fabs(next_state.y() - occ_bound_upper_limit);
+
+    // 确定最近的距离
+    double dis = std::min(dis_to_lower, dis_to_upper);
+
+    // 根据最近的距离计算奖励
+    if (dis <= distance_threshold) {
+      // 如果距离在阈值内，奖励随距离减小而减小
+      return 1.0 - (dis / distance_threshold);
+    } else {
+      // 如果距离大于阈值，返回最大奖励
+      return 1.0;
+    }
   }
 }
-
 // New Action Consistency reward
 double XICAMCTSFunction::ActionConsistencyReward_(
     const VehicleAction &veh_action, const VehicleAction &last_veh_action) {
   double gamma = 0.1;
   double jerk_diff = veh_action.jerk() - last_veh_action.jerk();
-  double dkappa_diff = veh_action.dkappa() - last_veh_action.dkappa();
-  double distance_squared = jerk_diff * jerk_diff + dkappa_diff * dkappa_diff;
+  // double dkappa_diff = veh_action.dkappa() - last_veh_action.dkappa();
+  double distance_squared = jerk_diff * jerk_diff;
   return std::exp(-gamma * distance_squared);
 }
 

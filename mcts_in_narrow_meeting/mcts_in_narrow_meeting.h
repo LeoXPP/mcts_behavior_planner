@@ -8,11 +8,12 @@
 
 #include <algorithm>
 
-
 namespace apollo {
 namespace BehaviorPlanner {
 
 enum ObstacleType { OppoLeftTurn = 0, OppoCollide = 1 };
+
+enum ScenarioType { MergeInScene = 0, OppoCollideScene = 1 };
 
 struct XICARewardInfo : public RewardInfo {
   double xica_w_eff = 0.3;
@@ -23,7 +24,7 @@ struct XICARewardInfo : public RewardInfo {
   double xica_w_refline = 2.0;
 };
 
-enum XICAObsType { XICACutIn = 0, LaneKeep = 1};
+enum XICAObsType { XICACutIn = 0, LaneKeep = 1 };
 
 struct XICAIDMParam {
   double max_acc_ = 1.3;
@@ -52,85 +53,116 @@ struct XICAMCTSParam : public MCTSParam {
   double xica_diff_v_max = 3.0;
   double xica_diff_a_max = 2.0;
   double xica_max_d_theta = 0.8;
-  double ego_optimal_y = 0.0;
+  double ego_optimal_y = 4.0;
   double agent_optimal_y = 4.0;
   std::unordered_map<std::string, XICAObsType> obs_if_cut_in_config;
   std::vector<VehicleAction> ego_lat_action;
   std::vector<std::unordered_map<std::string, VehicleAction>> ego_agent_action;
-
 };
 class XICAMCTSFunction : public BehaviorMCTSFunctionBase {
- public:
-  XICAMCTSFunction(const XICAMCTSParam &mcts_param, const ObstacleType &obs_type)
-      : BehaviorMCTSFunctionBase(mcts_param), mcts_param_(mcts_param), obs_type_(obs_type){};
+public:
+  XICAMCTSFunction(const XICAMCTSParam &mcts_param,
+                   const ObstacleType &obs_type,
+                   const ScenarioType &scenario_type)
+      : BehaviorMCTSFunctionBase(mcts_param), mcts_param_(mcts_param),
+        obs_type_(obs_type), scenario_type_(scenario_type){};
   ~XICAMCTSFunction() override = default;
-  
-  protected:
+
+protected:
   const XICAMCTSParam &mcts_param_;
 
-
- public:
+public:
   void PreConstructTree(MCTSNode *root, bool is_pre_construct = false) override;
-  void ChooseAction(MCTSNode *node, std::unordered_map<std::string, VehicleAction> &selected_action) override;
+  void ChooseAction(
+      MCTSNode *node,
+      std::unordered_map<std::string, VehicleAction> &selected_action) override;
   double RewardFun(MCTSNode *node) override;
-  bool StateChange(MCTSNode *node, const std::unordered_map<std::string, VehicleAction> &action,
+  bool StateChange(MCTSNode *node,
+                   const std::unordered_map<std::string, VehicleAction> &action,
                    MCTSNode *new_node) override;
   void Prepuring(MCTSNode *new_node) override;
   bool ExpandNode(MCTSNode *node, MCTSNode *new_node) override;
-  void InitNode(MCTSNode *parent_node, const std::unordered_map<std::string, VehicleAction> &action,
+  void InitNode(MCTSNode *parent_node,
+                const std::unordered_map<std::string, VehicleAction> &action,
                 MCTSNode *new_node) override;
-  
+
+  ScenarioType get_scenario_type() { return scenario_type_; }
+  void set_scenario_type(ScenarioType scenario_type) {
+    scenario_type_ = scenario_type;
+  }
+
   double OccReward(const VehicleState &next_state, std::string id);
 
-  double ActionConsistencyReward_(const VehicleAction &veh_action, const VehicleAction &last_veh_action);
-  double TargetSpeedRward(const VehicleState &next_state, const std::string &id);
+  double ActionConsistencyReward_(const VehicleAction &veh_action,
+                                  const VehicleAction &last_veh_action);
+  double TargetSpeedRward(const VehicleState &next_state,
+                          const std::string &id);
   double AccReward(const VehicleState &veh_state, const std::string &id);
-  double XICAEfficiencyReward(const VehicleState &veh_state, const std::string &id);
+  double XICAEfficiencyReward(const VehicleState &veh_state,
+                              const std::string &id);
 
-  bool XICAIDMModel(const VehicleState &cur_state, VehicleState &next_state, double dt,
-                    const VehicleState *leader_state);
+  bool XICAIDMModel(const VehicleState &cur_state, VehicleState &next_state,
+                    double dt, const VehicleState *leader_state);
 
-  bool EgoSearchIDMModel(const VehicleAction &action, const VehicleState &cur_state, VehicleState &next_state,
-                         const double dt, const VehicleState *leader_state);
+  bool EgoSearchIDMModel(const VehicleAction &action,
+                         const VehicleState &cur_state,
+                         VehicleState &next_state, const double dt,
+                         const VehicleState *leader_state);
 
-  bool GetLeaderState(const std::unordered_map<std::string, VehicleState> &cur_state, const std::string &id,
-                      const VehicleState *&leader_state);
+  bool
+  GetLeaderState(const std::unordered_map<std::string, VehicleState> &cur_state,
+                 const std::string &id, const VehicleState *&leader_state);
 
   double XICAIDMVelocityReward(const VehicleState &next_state);
-  double SmoothnessReward(const VehicleState &cur_state, const VehicleState &his_state);
-  double XICAHistoryConsistencyReward(const VehicleState &veh_state, const double cur_t,
+  double SmoothnessReward(const VehicleState &cur_state,
+                          const VehicleState &his_state);
+  double XICAHistoryConsistencyReward(const VehicleState &veh_state,
+                                      const double cur_t,
                                       const Trajectory &last_modified_traj);
   double XICAPredictionReward(const VehicleState &veh_state, const double cur_t,
                               const PredictionObstacle &pred_obs);
-  double XICAReflineReward(const std::unordered_map<std::string, VehicleState> &cur_state, const std::string &id);
+  double XICAReflineReward(
+      const std::unordered_map<std::string, VehicleState> &cur_state,
+      const std::string &id);
 
-  double XICASafetyReward(const std::unordered_map<std::string, VehicleState> &cur_state);
+  double XICASafetyReward(
+      const std::unordered_map<std::string, VehicleState> &cur_state);
 
-  double StateConsistencyReward(const VehicleState &cur_state, const double cur_t,
+  double StateConsistencyReward(const VehicleState &cur_state,
+                                const double cur_t,
                                 const PredictionObstacle &pred_obs);
 
-  // inline void InitWorldView(WorldViewPtr world_view) { world_view_ = world_view; };
-  // inline void InitReferenceLineInfo(const ReferenceLineInfoPtr reference_line_info) {
-  // reference_line_info_ = reference_line_info;
+  bool XICAKinematicModel(MCTSNode *node, const std::string &id,
+                          const VehicleAction &action,
+                          const VehicleState &cur_state,
+                          VehicleState &next_state, const double dt,
+                          bool check_valid);
 
- public:
-  bool AccModel(const VehicleAction &action, const VehicleState &cur_state, VehicleState &next_state, const double dt,
+  // inline void InitWorldView(WorldViewPtr world_view) { world_view_ =
+  // world_view; }; inline void InitReferenceLineInfo(const
+  // ReferenceLineInfoPtr reference_line_info) { reference_line_info_ =
+  // reference_line_info;
+
+public:
+  bool AccModel(const VehicleAction &action, const VehicleState &cur_state,
+                VehicleState &next_state, const double dt,
                 const std::string id);
 
-  bool BoundaryCheck(MCTSNode *node, const VehicleState &next_state, const std::string &id);
+  bool BoundaryCheck(MCTSNode *node, const VehicleState &next_state,
+                     const std::string &id);
 
-  bool XICAJerkModel(MCTSNode *node, const std::string &id, const VehicleAction &action, const VehicleState &cur_state,
-                                         VehicleState &next_state, const double dt, bool check_valid);
+  bool XICAJerkModel(MCTSNode *node, const std::string &id,
+                     const VehicleAction &action, const VehicleState &cur_state,
+                     VehicleState &next_state, const double dt,
+                     bool check_valid);
 
-
- private:
+private:
   ObstacleType obs_type_;
+  ScenarioType scenario_type_;
+
   // WorldViewPtr world_view_ = nullptr;
   // ReferenceLineInfoPtr reference_line_info_ = nullptr;
 };
-
-
-
 
 } // namespace BehaviorPlanner
 } // namespace apollo

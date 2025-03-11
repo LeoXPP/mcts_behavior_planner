@@ -140,9 +140,13 @@ struct PredictionObstacle {
   std::vector<Trajectory> trajectories;
 
   // 障碍物尺寸信息（例如长和宽）
-  double length_;
-  double width_;
+  double length_ = 5.0;
+  double width_ = 2.0;
   double speed_;
+
+  void set_length(double length) { length_ = length; }
+  void set_width(double width) { width_ = width; }
+  void set_speed(double speed) { speed_ = speed; }
 
   // 其他可选信息（例如预测置信度）
   double confidence_;

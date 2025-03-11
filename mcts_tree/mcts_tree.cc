@@ -357,6 +357,7 @@ bool MCTSTree::SearchBestNodeSeq() {
     node_info["reward"] = cur_node->reward();
     node_info["iter"] = cur_node->iter();
     node_info["id"] = cur_node->id();
+    node_info["is_valid"] = true;
 
     // 保存每个节点的相关信息
     best_node_seq_info_.push_back(node_info);
